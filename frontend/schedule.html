@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>Розклад — Nearbus</title>
+  <link rel="stylesheet" href="tokens.css?v=1"/>
+  <link rel="stylesheet" href="glass.css?v=1"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100dvh;padding-bottom:max(env(safe-area-inset-bottom,0px) + 80px,88px)}
+
+    /* ── HEADER ── */
+    .header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:none;padding:calc(env(safe-area-inset-top, 47px) + 12px) 16px 12px;}
+    .header__top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .back-btn{display:flex;align-items:center;gap:4px;color:var(--text);font-size:15px;font-weight:600;text-decoration:none;padding:6px 14px 6px 10px;background:var(--surface-elevated);border:none;cursor:pointer;border-radius:99px;box-shadow:inset 0 0 0 .5px rgba(255,255,255,0.1),inset 0 1px 0 rgba(255,255,255,0.2);backdrop-filter:blur(20px);transition:transform .2s, opacity .2s;flex-shrink:0}
+    .back-btn:active{transform:scale(0.95);opacity:0.8}
+    .header__title{font-size:17px;font-weight:700;letter-spacing:-.4px;flex:1;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,0.1)}
+    .header__time{font-size:13px;font-weight:600;color:var(--text);background:var(--surface-elevated);padding:6px 12px;border-radius:99px;box-shadow:inset 0 0 0 .5px rgba(255,255,255,0.1),inset 0 1px 0 rgba(255,255,255,0.2);backdrop-filter:blur(20px);min-width:44px;text-align:center}
+
+    /* Segment */
+    .segment-wrap{padding:0 16px 10px}
+    .segment{display:flex;background:var(--segment-track);border-radius:99px;padding:3px;position:relative;box-shadow:inset 0 0 0 1px var(--separator);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+    .segment__slider{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);background:var(--segment-slider);border-radius:99px;box-shadow:0 0 0 1px var(--separator);transition:transform .32s cubic-bezier(.32,.72,0,1);pointer-events:none}
+    .segment__slider--right{transform:translateX(100%)}
+    .segment__btn{flex:1;padding:7px 0;border-radius:99px;border:none;background:transparent;color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:5px;transition:color .2s}
+    .segment__btn--active{color:var(--text)}
+
+    /* ── TOOLBAR (search + direction) ── */
+    .toolbar{display:flex;align-items:center;gap:8px;padding:0 16px 12px}
+    .search-wrap{flex:1;position:relative;display:flex;align-items:center}
+    .search-wrap svg.search-icon{position:absolute;left:10px;color:var(--text-tertiary);pointer-events:none;flex-shrink:0}
+    .search-input{width:100%;padding:9px 32px 9px 34px;font-size:15px;border-radius:99px;border:none;box-shadow:inset 0 0 0 .5px var(--separator),inset 0 2px 4px rgba(0,0,0,.05);background:var(--surface);color:var(--text);outline:none;transition:all .2s;-webkit-appearance:none;appearance:none}
+    .search-input:focus{box-shadow:inset 0 0 0 1.5px var(--accent),inset 0 2px 4px rgba(0,122,255,.1)}
+    .search-input::placeholder{color:var(--text-tertiary)}
+    .search-clear{position:absolute;right:8px;width:20px;height:20px;border:none;background:var(--text-tertiary);color:#fff;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
+    .search-clear--visible{opacity:1;pointer-events:auto}
+
+    .dir-btn{width:42px;height:42px;border-radius:99px;border:none;background:var(--surface-elevated);box-shadow:inset 0 0 0 .5px rgba(255,255,255,0.1),inset 0 1px 0 rgba(255,255,255,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s cubic-bezier(.32,.72,0,1);position:relative}
+    .dir-btn:active{transform:scale(.92);opacity:.8}
+    .dir-btn--active{background:linear-gradient(180deg, var(--accent-light) 0%, rgba(0,122,255,0.05) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 .5px rgba(0,122,255,.3);color:var(--accent)}
+    .dir-badge{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+
+    /* ── HERO ── */
+    .hero{padding:0 16px 0;display:flex;gap:16px;align-items:stretch}
+    .hero__main{flex:1;background:linear-gradient(135deg,var(--accent-light) 0%,rgba(0,122,255,.05) 100%);border:none;box-shadow:inset 0 0 0 .5px rgba(0,122,255,.2),0 4px 12px rgba(0,122,255,.08);border-radius:20px;padding:12px 16px;position:relative;overflow:hidden;cursor:default}
+    .hero__main::after{content:'';position:absolute;top:-24px;right:-24px;width:90px;height:90px;background:radial-gradient(circle,rgba(0,122,255,.12) 0%,transparent 70%);pointer-events:none}
+    .hero__stop-label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+    .hero__pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pdot 1.8s ease-in-out infinite}
+    @keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+    .hero__stop-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hero__minutes{display:flex;align-items:baseline;font-size:32px;font-weight:700;letter-spacing:-1px;color:var(--text);line-height:1;margin-bottom:2px}
+    .hero__minutes em{font-size:26px;font-weight:600;font-style:normal;color:var(--text-secondary);margin-left:4px;margin-right:8px;letter-spacing:0}
+    .hero__departure{font-size:12px;color:var(--text-secondary);margin-top:5px}
+    .hero__side{display:flex;flex-direction:column;gap:12px}
+
+    .hero__day-btn{background:var(--surface-elevated);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:none;box-shadow:0 0 0 .5px var(--separator),inset 0 1px 0 rgba(255,255,255,.25);border-radius:24px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;min-width:64px;flex:1;transition:all .2s cubic-bezier(.32,.72,0,1)}
+    .hero__day-btn:active{transform:scale(.94);opacity:.8}
+    .hero__day-icon{color:var(--text-secondary)}
+    .hero__day-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--text-secondary);text-align:center;white-space:nowrap}
+
+    .hero__direction-card{background:var(--surface-elevated);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:none;box-shadow:0 0 0 .5px var(--separator),inset 0 1px 0 rgba(255,255,255,.25);border-radius:24px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;cursor:pointer;transition:all .2s cubic-bezier(.32,.72,0,1)}
+    .hero__direction-card:active{transform:scale(.94);opacity:.8}
+    .hero__dir-from{font-size:9px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+    .hero__dir-arrow{color:var(--text-tertiary)}
+    .hero__dir-to{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+
+    /* ── STATS ── */
+    .stats-bar{margin:10px 16px 0;display:flex;gap:7px}
+    .stat-chip{flex:1;background:var(--surface-elevated);border:.5px solid var(--separator);border-radius:10px;padding:9px 10px;display:flex;align-items:center;gap:7px}
+    .stat-chip__icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .stat-chip__icon--blue{background:rgba(0,122,255,.12);color:var(--accent)}
+    .stat-chip__icon--green{background:rgba(52,199,89,.12);color:#34c759}
+    .stat-chip__icon--orange{background:rgba(255,149,0,.12);color:#ff9500}
+    .stat-chip__label{font-size:10px;color:var(--text-secondary);font-weight:500;line-height:1.2}
+    .stat-chip__value{font-size:12px;font-weight:700;color:var(--text);letter-spacing:-.2px;line-height:1.2}
+
+    /* ── SECTION HEADER ── */
+    .section-header{padding:18px 16px 8px;display:flex;align-items:center;justify-content:space-between}
+    .section-header__title{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-secondary)}
+    .section-header__badge{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-light);border-radius:20px;padding:2px 9px}
+
+    /* ── NO RESULTS ── */
+    .no-results{text-align:center;padding:40px 16px;color:var(--text-tertiary)}
+    .no-results__title{font-size:15px;font-weight:600;color:var(--text);margin-top:12px;margin-bottom:4px}
+    .no-results__sub{font-size:13px}
+
+    /* ── TIMELINE ── */
+    .timeline{padding:0 16px;position:relative}
+    .timeline::before{content:'';position:absolute;left:26px;top:10px;bottom:10px;width:1.5px;background:linear-gradient(to bottom,transparent,var(--separator-opaque) 8%,var(--separator-opaque) 92%,transparent)}
+
+    .stop-row{display:flex;align-items:flex-start;gap:10px;padding:4px 0;cursor:pointer;animation:sin .28s cubic-bezier(.32,.72,0,1) both}
+    @keyframes sin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .stop-row__dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--separator-opaque);background:var(--bg);flex-shrink:0;margin-top:14px;z-index:1;position:relative;display:flex;align-items:center;justify-content:center;transition:all .25s}
+    .stop-row__dot-inner{width:6px;height:6px;border-radius:50%;background:var(--text-tertiary);transition:all .25s}
+    .stop-row__body{flex:1;background:var(--surface-elevated);border:.5px solid var(--separator);border-radius:var(--radius-md);padding:10px 13px;transition:all .22s;user-select:none}
+    .stop-row__top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;gap:8px}
+    .stop-row__name{font-size:14px;font-weight:600;color:var(--text);flex:1;min-width:0}
+    .stop-row__actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .stop-row__next-badge{display:flex;align-items:center;gap:3px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;border-radius:7px;padding:3px 8px}
+    .stop-row__mystop-btn{width:28px;height:28px;border-radius:99px;border:none;box-shadow:inset 0 0 0 1.5px var(--separator);background:transparent;color:var(--text-tertiary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s cubic-bezier(.32,.72,0,1);flex-shrink:0}
+    .stop-row__mystop-btn--active{background:linear-gradient(180deg, rgba(255,149,0,.1) 0%, rgba(255,149,0,.2) 100%);box-shadow:inset 0 0 0 1.5px rgba(255,149,0,.5),0 2px 6px rgba(255,149,0,.2);color:#ff9500;transform:scale(1.05)}
+    .times-grid{display:flex;flex-wrap:wrap;gap:4px}
+    .time-chip{display:inline-block;padding:3px 8px;font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--bg);border:1px solid var(--separator-opaque);border-radius:6px;transition:all .2s;white-space:nowrap}
+    .time-chip--next{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+    .time-chip--past{display:none;}
+
+    /* stop states */
+    .stop-row--mystop .stop-row__dot{border-color:#ff9500;background:#ff9500}
+    .stop-row--mystop .stop-row__dot-inner{background:#fff;transform:scale(0)}
+    .stop-row--mystop .stop-row__body{background:rgba(255,149,0,.08);border-color:rgba(255,149,0,.28)}
+    .stop-row--mystop .stop-row__name{color:#ff9500}
+
+    .stop-row--next-stop .stop-row__dot{border-color:var(--accent);background:var(--accent)}
+    .stop-row--next-stop .stop-row__dot-inner{background:#fff;transform:scale(0)}
+    .stop-row--next-stop .stop-row__body{background:rgba(0,122,255,.07);border-color:rgba(0,122,255,.25);box-shadow:0 0 0 3px rgba(0,122,255,.05)}
+    .stop-row--next-stop .stop-row__name{color:var(--accent)}
+
+    .stop-row--past{opacity:.5}
+    .stop-row--endpoint .stop-row__name{font-weight:700}
+
+    /* ── DIRECTION BANNER ── */
+    .dir-banner{margin:10px 16px 0;background:rgba(255,149,0,.1);border:.5px solid rgba(255,149,0,.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+    .dir-banner svg{color:#ff9500;flex-shrink:0}
+    .dir-banner p{font-size:12px;color:var(--text-secondary);line-height:1.4}
+
+    /* ── CTA ── */
+    .cta-wrap{padding:16px 16px 0}
+    .map-cta{background:linear-gradient(180deg, #1c88ff 0%, #006ce0 100%);box-shadow:inset 0 1px 1px rgba(255,255,255,.3);color:#fff;border:none;border-radius:99px;padding:16px 20px;font-size:16px;font-weight:600;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:all .25s cubic-bezier(.32,.72,0,1);letter-spacing:-.2px}
+    .map-cta:active{opacity:.9;transform:scale(.97);box-shadow:inset 0 1px 1px rgba(255,255,255,.3)}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header__top">
+    <a href="index.html" class="back-btn" aria-label="Назад до карти">
+      <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Карта
+    </a>
+    <div class="header__title">Розклад</div>
+    <div class="header__time" id="liveClock">--:--</div>
+  </div>
+</div>
+
+<div id="heroContent" style="padding-top: 12px;"></div>
+
+<div class="segment-wrap" style="padding-top: 12px;">
+  <div class="segment glass" role="tablist" aria-label="Вибір маршруту">
+    <div class="segment__slider glass-indicator" id="segSlider"></div>
+    <button id="tab1" class="segment__btn segment__btn--active" role="tab" aria-selected="true" onclick="switchRoute(1)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 6v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Маршрут 1
+    </button>
+    <button id="tab2" class="segment__btn" role="tab" aria-selected="false" onclick="switchRoute(2)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 6v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Маршрут 2
+    </button>
+  </div>
+</div>
+<div class="segment-wrap">
+  <div class="segment glass" role="tablist" aria-label="Вибір дня">
+    <div class="segment__slider glass-indicator" id="daySlider"></div>
+    <button id="dayTab1" class="segment__btn segment__btn--active" role="tab" aria-selected="true" onclick="setDay(false)">
+      Будній
+    </button>
+    <button id="dayTab2" class="segment__btn" role="tab" aria-selected="false" onclick="setDay(true)">
+      Вихідний
+    </button>
+  </div>
+</div>
+
+<div class="section-header" style="padding: 24px 16px 8px;">
+  <div class="section-header__title">Зупинки та розклад</div>
+  <div id="searchBadge" style="display:flex;align-items:center;"></div>
+</div>
+
+<!-- Search -->
+<div class="toolbar" style="padding-top: 0px; padding-bottom: 12px; margin-bottom: 0px;">
+  <div class="search-wrap">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="searchInput" class="search-input" type="search" placeholder="Шукати зупинку…" autocomplete="off" oninput="onSearch(this.value)" aria-label="Пошук зупинки"/>
+    <button id="searchClear" class="search-clear" onclick="clearSearch()" aria-label="Очистити">
+      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="timelineContent"></div>
+
+<script>
+/* ─── DATA ─── */
+var ROUTES = {
+  1:{name:'Маршрут 1',a:'Бронниця',b:'Верхня Немія',iw:'30–40 хв',ih:'40–50 хв',n:17,
+    stops:[
+      {n:'Бронниця',k:'Бронниця',ep:true},
+      {n:'Нижній магазин',k:'Нижній магазин (Немійський напрямок)'},
+      {n:"П'ята колона",k:"П'ята колона (Немійський напрямок)"},
+      {n:'Консервний завод',k:'Консервний завод (Немійський напрямок)'},
+      {n:'119-й район',k:'119-й район (Немійський напрямок)'},
+      {n:'Магазин «Ельф»',k:'Магазин «Ельф», Прибори (Немійський напрямок)'},
+      {n:'Полкова церква',k:'Полкова церква (Немійський напрямок)'},
+      {n:'Проспект Незалежності',k:'Проспект Незалежності (Немійський напрямок)'},
+      {n:'Площа ім. Гоголя',k:'Площа ім. Гоголя (Немійський напрямок)'},
+      {n:'Центр',k:'Центр (Немійський напрямок)'},
+      {n:'Ринок',k:'Ринок (Немійський напрямок)'},
+      {n:'Ощадбанк',k:'Ощадбанк (Немійський напрямок)'},
+      {n:'Монтажний технікум',k:'Монтажний технікум (Немійський напрямок)'},
+      {n:'Машинобудівний завод',k:'Машинобудівний завод (Немійський напрямок)'},
+      {n:'Школа № 5',k:'Школа № 5 (Немійський напрямок)'},
+      {n:'Лікарня',k:'Лікарня (Немійський напрямок)'},
+      {n:'Верхня Немія',k:'Верхня Немія',ep:true}
+    ]
+  },
+  2:{name:'Маршрут 2',a:'Бронниця',b:'Верхня Немія',iw:'30–40 хв',ih:'40–50 хв',n:21,
+    stops:[
+      {n:'Бронниця',k:'Бронниця',ep:true},
+      {n:'Нижній магазин',k:'Нижній магазин (Немійський напрямок)'},
+      {n:"П'ята колона",k:"П'ята колона (Немійський напрямок)"},
+      {n:'Консервний завод',k:'Консервний завод (Немійський напрямок)'},
+      {n:'119-й район',k:'119-й район (Немійський напрямок)'},
+      {n:'Магазин «Ельф»',k:'Магазин «Ельф», Прибори (Немійський напрямок)'},
+      {n:'Полкова церква',k:'Полкова церква (Немійський напрямок)'},
+      {n:'Проспект Незалежності',k:'Проспект Незалежності (Немійський напрямок)'},
+      {n:'Площа ім. Гоголя',k:'Площа ім. Гоголя (Немійський напрямок)'},
+      {n:'Центр',k:'Центр (Немійський напрямок)'},
+      {n:'Ринок',k:'Ринок (Немійський напрямок)'},
+      {n:'Лікарня',k:'Лікарня (Бронницький напрямок)'},
+      {n:'Школа № 5',k:'Школа № 5 (Бронницький напрямок)'},
+      {n:'Машинобудівний завод',k:'Машинобудівний завод (Бронницький напрямок)'},
+      {n:'Монтажний технікум',k:'Монтажний технікум (Бронницький напрямок)'},
+      {n:'Ощадбанк',k:'Ощадбанк (Бронницький напрямок)'},
+      {n:'Школа № 2',k:'Школа № 2 (Немійський напрямок)'},
+      {n:'Автовокзал',k:'Автовокзал (Немійський напрямок)'},
+      {n:'Маслозавод',k:'Маслозавод (Немійський напрямок)'},
+      {n:'Залізничний вокзал',k:'Залізничний вокзал (Немійський напрямок)'},
+      {n:'Верхня Немія',k:'Верхня Немія',ep:true}
+    ]
+  }
+};
+
+var SCH={
+  'Бронниця':{m1:{w:["5:20","6:10","6:45","7:15","7:45","8:15","8:45","9:15","9:55","10:35","11:15","11:55","12:35","13:25","14:15","15:00","15:40","16:20","16:50","17:20","17:50","18:40","19:45"],h:["5:20","6:10","6:50","7:30","8:10","8:50","9:30","10:10","10:50","11:30","12:10","12:50","13:30","14:10","14:50","15:35","16:25","17:15","18:10","19:10"]},m2:{w:["5:40","6:30","7:00","7:30","8:00","8:30","9:00","9:35","10:15","10:55","11:35","12:15","13:00","13:50","14:40","15:20","16:00","16:35","17:05","17:35","18:10","19:10"],h:["5:40","6:30","7:10","7:50","8:30","9:10","9:50","10:30","11:10","11:50","12:30","13:10","13:50","14:30","15:10","16:00","16:50","17:40","18:40","19:45"]}},
+  'Нижній магазин (Немійський напрямок)':{m1:{w:["5:27","6:17","6:52","7:22","7:52","8:22","8:52","9:22","10:02","10:42","11:22","12:02","12:42","13:32","14:22","15:07","15:47","16:27","16:57","17:27","17:57","18:47","19:52"],h:["5:27","6:17","6:57","7:37","8:17","8:57","9:37","10:17","10:57","11:37","12:17","12:57","13:37","14:17","14:57","15:42","16:32","17:22","18:17","19:17"]},m2:{w:["5:47","6:37","7:07","7:37","8:07","8:37","9:07","9:42","10:22","11:02","11:42","12:22","13:07","13:57","14:47","15:27","16:07","16:42","17:12","17:42","18:17","19:17"],h:["5:47","6:37","7:17","7:57","8:37","9:17","9:57","10:37","11:17","11:57","12:37","13:17","13:57","14:37","15:17","16:07","16:57","17:47","18:47","19:52"]}},
+  "П'ята колона (Немійський напрямок)":{m1:{w:["5:28","6:18","6:53","7:23","7:53","8:23","8:53","9:23","10:03","10:43","11:23","12:03","12:43","13:33","14:23","15:08","15:48","16:28","16:58","17:28","17:58","18:48","19:53"],h:["5:28","6:18","6:58","7:38","8:18","8:58","9:38","10:18","10:58","11:38","12:18","12:58","13:38","14:18","14:58","15:43","16:33","17:23","18:18","19:18"]},m2:{w:["5:48","6:38","7:08","7:38","8:08","8:38","9:08","9:43","10:23","11:03","11:43","12:23","13:08","13:58","14:48","15:28","16:08","16:43","17:13","17:43","18:18","19:18"],h:["5:48","6:38","7:18","7:58","8:38","9:18","9:58","10:38","11:18","11:58","12:38","13:18","13:58","14:38","15:18","16:08","16:58","17:48","18:48","19:53"]}},
+  'Консервний завод (Немійський напрямок)':{m1:{w:["5:32","6:22","6:57","7:27","7:57","8:27","8:57","9:27","10:07","10:47","11:27","12:07","12:47","13:37","14:27","15:12","15:52","16:32","17:02","17:32","18:02","18:52","19:57"],h:["5:32","6:22","7:02","7:42","8:22","9:02","9:42","10:22","11:02","11:42","12:22","13:02","13:42","14:22","15:02","15:47","16:37","17:27","18:22","19:22"]},m2:{w:["5:52","6:42","7:12","7:42","8:12","8:42","9:12","9:47","10:27","11:07","11:47","12:27","13:12","14:02","14:52","15:32","16:12","16:47","17:17","17:47","18:22","19:22"],h:["5:52","6:42","7:22","8:02","8:42","9:22","10:02","10:42","11:22","12:02","12:42","13:22","14:02","14:42","15:22","16:12","17:02","17:52","18:52","19:57"]}},
+  '119-й район (Немійський напрямок)':{m1:{w:["5:34","6:24","6:59","7:29","7:59","8:29","8:59","9:29","10:09","10:49","11:29","12:09","12:49","13:39","14:29","15:14","15:54","16:34","17:04","17:34","18:04","18:54","19:59"],h:["5:34","6:24","7:04","7:44","8:24","9:04","9:44","10:24","11:04","11:44","12:24","13:04","13:44","14:24","15:04","15:49","16:39","17:29","18:24","19:24"]},m2:{w:["5:54","6:44","7:14","7:44","8:14","8:44","9:14","9:49","10:29","11:09","11:49","12:29","13:14","14:04","14:54","15:34","16:14","16:49","17:19","17:49","18:24","19:24"],h:["5:54","6:44","7:24","8:04","8:44","9:24","10:04","10:44","11:24","12:04","12:44","13:24","14:04","14:44","15:24","16:14","17:04","17:54","18:54","19:59"]}},
+  'Магазин «Ельф», Прибори (Немійський напрямок)':{m1:{w:["5:36","6:26","7:01","7:31","8:01","8:31","9:01","9:31","10:11","10:51","11:31","12:11","12:51","13:41","14:31","15:16","15:56","16:36","17:06","17:36","18:06","18:56","20:01"],h:["5:36","6:26","7:06","7:46","8:26","9:06","9:46","10:26","11:06","11:46","12:26","13:06","13:46","14:26","15:06","15:51","16:41","17:31","18:26","19:26"]},m2:{w:["5:56","6:46","7:16","7:46","8:16","8:46","9:16","9:51","10:31","11:11","11:51","12:31","13:16","14:06","14:56","15:36","16:16","16:51","17:21","17:51","18:26","19:26"],h:["5:56","6:46","7:26","8:06","8:46","9:26","10:06","10:46","11:26","12:06","12:46","13:26","14:06","14:46","15:26","16:16","17:06","17:56","18:56","20:01"]}},
+  'Полкова церква (Немійський напрямок)':{m1:{w:["5:38","6:28","7:03","7:33","8:03","8:33","9:03","9:33","10:13","10:53","11:33","12:13","12:53","13:43","14:33","15:18","15:58","16:38","17:08","17:38","18:08","18:58","20:03"],h:["5:38","6:28","7:08","7:48","8:28","9:08","9:48","10:28","11:08","11:48","12:28","13:08","13:48","14:28","15:08","15:53","16:43","17:33","18:28","19:28"]},m2:{w:["5:58","6:48","7:18","7:48","8:18","8:48","9:18","9:53","10:33","11:13","11:53","12:33","13:18","14:08","14:58","15:38","16:18","16:53","17:23","17:53","18:28","19:28"],h:["5:58","6:48","7:28","8:08","8:48","9:28","10:08","10:48","12:08","12:48","13:28","14:08","14:48","15:28","16:18","17:08","17:58","18:58","20:03"]}},
+  'Проспект Незалежності (Немійський напрямок)':{m1:{w:["5:40","6:30","7:05","7:35","8:05","8:35","9:05","9:35","10:15","10:55","11:35","12:15","12:55","13:45","14:35","15:20","16:00","16:40","17:10","17:40","18:10","19:00","20:05"],h:["5:40","6:30","7:10","7:50","8:30","9:10","9:50","10:30","11:10","11:50","12:30","13:10","13:50","14:30","15:10","15:55","16:45","17:35","18:30","19:30"]},m2:{w:["6:00","6:50","7:20","7:50","8:20","8:50","9:20","9:55","10:35","11:15","11:55","12:35","13:20","14:10","15:00","15:40","16:20","16:55","17:25","17:55","18:30","19:30"],h:["6:00","6:50","7:30","8:10","8:50","9:30","10:10","10:50","11:30","12:10","12:50","13:30","14:10","14:50","15:30","16:20","17:10","18:00","19:00","20:05"]}},
+  'Площа ім. Гоголя (Немійський напрямок)':{m1:{w:["5:42","6:32","7:07","7:37","8:07","8:37","9:07","9:37","10:17","10:57","11:37","12:17","12:57","13:47","14:37","15:22","16:02","16:42","17:12","17:42","18:12","19:02","20:07"],h:["5:42","6:32","7:12","7:52","8:32","9:12","9:52","10:32","11:12","11:52","12:32","13:12","13:52","14:32","15:12","15:57","16:47","17:37","18:32","19:32"]},m2:{w:["6:02","6:52","7:22","7:52","8:22","8:52","9:22","9:57","10:37","11:17","11:57","12:37","13:22","14:12","15:02","15:42","16:22","16:57","17:27","17:57","18:32","19:32"],h:["6:02","6:52","7:32","8:12","8:52","9:32","10:12","10:52","11:32","12:12","12:52","13:32","14:12","14:52","15:32","16:22","17:12","18:02","19:02","20:07"]}},
+  'Центр (Немійський напрямок)':{m1:{w:["5:44","6:34","7:09","7:39","8:09","8:39","9:09","9:39","10:19","10:59","11:39","12:19","12:59","13:49","14:39","15:24","16:04","16:44","17:14","17:44","18:14","19:04","20:09"],h:["5:44","6:34","7:14","7:54","8:34","9:14","9:54","10:34","11:14","11:54","12:34","13:14","13:54","14:34","15:14","15:59","16:49","17:39","18:34","19:34"]},m2:{w:["6:04","6:54","7:24","7:54","8:24","8:54","9:24","9:59","10:39","11:19","11:59","12:39","13:24","14:14","15:04","15:44","16:24","16:59","17:29","17:59","18:34","19:34"],h:["6:04","6:54","7:34","8:14","8:54","9:34","10:14","10:54","11:34","12:14","12:54","13:34","14:14","14:54","15:34","16:24","17:14","18:04","19:04","20:09"]}},
+  'Ринок (Немійський напрямок)':{m1:{w:["5:46","6:36","7:11","7:41","8:11","8:41","9:11","9:41","10:21","11:01","11:41","12:21","13:01","13:51","14:41","15:26","16:06","16:46","17:16","17:46","18:16","19:06","20:11"],h:["5:46","6:36","7:16","7:56","8:36","9:16","9:56","10:36","11:16","11:56","12:36","13:16","13:56","14:36","15:16","16:01","16:51","17:41","18:36","19:36"]},m2:{w:["6:06","6:56","7:26","7:56","8:26","8:56","9:26","10:01","10:41","11:21","12:01","12:41","13:26","14:16","15:06","15:46","16:26","17:01","17:31","18:01","18:36","19:36"],h:["6:06","6:56","7:36","8:16","8:56","9:36","10:16","10:56","11:36","12:16","12:56","13:36","14:16","14:56","15:36","16:26","17:16","18:06","19:06","20:11"]}},
+  'Ощадбанк (Немійський напрямок)':{m1:{w:["5:48","6:38","7:13","7:43","8:13","8:43","9:13","9:43","10:23","11:03","11:43","12:23","13:03","13:53","14:43","15:28","16:08","16:48","17:18","17:48","18:18","19:08","20:13"],h:["5:48","6:38","7:18","7:58","8:38","9:18","9:58","10:38","11:18","11:58","12:38","13:18","13:58","14:38","15:18","16:03","16:53","17:43","18:38","19:38"]},m2:null},
+  'Монтажний технікум (Немійський напрямок)':{m1:{w:["5:49","6:39","7:14","7:44","8:14","8:44","9:14","9:44","10:24","11:04","11:44","12:24","13:04","13:54","14:44","15:29","16:09","16:49","17:19","17:49","18:19","19:09","20:14"],h:["5:49","6:39","7:19","7:59","8:39","9:19","9:59","10:39","11:19","11:59","12:39","13:19","13:59","14:39","15:19","16:04","16:54","17:44","18:39","19:39"]},m2:null},
+  'Машинобудівний завод (Немійський напрямок)':{m1:{w:["5:50","6:40","7:15","7:45","8:15","8:45","9:15","9:45","10:25","11:05","11:45","12:25","13:05","13:55","14:45","15:30","16:10","16:50","17:20","17:50","18:20","19:10","20:15"],h:["5:50","6:40","7:20","8:00","8:40","9:20","10:00","10:40","11:20","12:00","12:40","13:20","14:00","14:40","15:20","16:05","16:55","17:45","18:40","19:40"]},m2:null},
+  'Школа № 5 (Немійський напрямок)':{m1:{w:["5:52","6:42","7:17","7:47","8:17","8:47","9:17","9:47","10:27","11:07","11:47","12:27","13:07","13:57","14:47","15:32","16:12","16:52","17:22","17:52","18:22","19:12","20:17"],h:["5:52","6:42","7:22","8:02","8:42","9:22","10:02","10:42","11:22","12:02","12:42","13:22","14:02","14:42","15:22","16:07","16:57","17:47","18:42","19:42"]},m2:null},
+  'Лікарня (Немійський напрямок)':{m1:{w:["5:53","6:43","7:18","7:48","8:18","8:48","9:18","9:48","10:28","11:08","11:48","12:28","13:08","13:58","14:48","15:33","16:13","16:53","17:23","17:53","18:23","19:13","20:18"],h:["5:53","6:43","7:23","8:03","8:43","9:23","10:03","10:43","11:23","12:03","12:43","13:23","14:03","14:43","15:23","16:08","16:58","17:48","18:43","19:43"]},m2:null},
+  'Лікарня (Бронницький напрямок)':{m1:null,m2:{w:["6:18","7:08","7:38","8:08","8:38","9:08","9:38","10:13","10:53","11:33","12:13","12:53","13:38","14:28","15:18","15:58","16:38","17:13","17:43","18:13","18:48","19:48"],h:["6:18","7:08","7:48","8:28","9:08","9:48","10:28","11:08","11:48","12:28","13:08","13:48","14:28","15:08","15:48","16:38","17:28","18:18","19:18","20:23"]}},
+  'Школа № 5 (Бронницький напрямок)':{m1:null,m2:{w:["6:21","7:11","7:41","8:11","8:41","9:11","9:41","10:16","10:56","11:36","12:16","12:56","13:41","14:31","15:21","16:01","16:41","17:16","17:46","18:16","18:51","19:51"],h:["6:21","7:11","7:51","8:31","9:11","9:51","10:31","11:11","11:51","12:31","13:11","13:51","14:31","15:11","15:51","16:41","17:31","18:21","19:21","20:26"]}},
+  'Машинобудівний завод (Бронницький напрямок)':{m1:null,m2:{w:["6:22","7:12","7:42","8:12","8:42","9:12","9:42","10:17","10:57","11:37","12:17","12:57","13:42","14:32","15:22","16:02","16:42","17:17","17:47","18:17","18:52","19:52"],h:["6:22","7:12","7:52","8:32","9:12","9:52","10:32","11:12","11:52","12:32","13:12","13:52","14:32","15:12","15:52","16:42","17:32","18:22","19:22","20:27"]}},
+  'Монтажний технікум (Бронницький напрямок)':{m1:null,m2:{w:["6:23","7:13","7:43","8:13","8:43","9:13","9:43","10:18","10:58","11:38","12:18","12:58","13:43","14:33","15:23","16:03","16:43","17:18","17:48","18:18","18:53","19:53"],h:["6:23","7:13","7:53","8:33","9:13","9:53","10:33","11:13","11:53","12:33","13:13","13:53","14:33","15:13","15:53","16:43","17:33","18:23","19:23","20:28"]}},
+  'Ощадбанк (Бронницький напрямок)':{m1:null,m2:{w:["6:25","7:15","7:45","8:15","8:45","9:15","9:45","10:20","11:00","11:40","12:20","13:00","13:45","14:35","15:25","16:05","16:45","17:20","17:50","18:20","18:55","19:55"],h:["6:25","7:15","7:55","8:35","9:15","9:55","10:35","11:15","11:55","12:35","13:15","13:55","14:35","15:15","15:55","16:45","17:35","18:25","19:25","20:30"]}},
+  'Школа № 2 (Немійський напрямок)':{m1:null,m2:{w:["6:08","6:58","7:28","7:58","8:28","8:58","9:28","10:03","10:43","11:23","12:03","12:43","13:28","14:18","15:08","15:48","16:28","17:03","17:33","18:03","18:38","19:38"],h:["6:08","6:58","7:38","8:18","8:58","9:38","10:18","10:58","11:38","12:18","12:58","13:38","14:18","14:58","15:38","16:28","17:18","18:08","19:08","20:13"]}},
+  'Автовокзал (Немійський напрямок)':{m1:null,m2:{w:["6:10","7:00","7:30","8:00","8:30","9:00","9:30","10:05","10:45","11:25","12:05","12:45","13:30","14:20","15:10","15:50","16:30","17:05","17:35","18:05","18:40","19:40"],h:["6:10","7:00","7:40","8:20","9:00","9:40","10:20","11:00","11:40","12:20","13:00","13:40","14:20","15:00","15:40","16:30","17:20","18:10","19:10","20:15"]}},
+  'Маслозавод (Немійський напрямок)':{m1:null,m2:{w:["6:11","7:01","7:31","8:01","8:31","9:01","9:31","10:06","10:46","11:26","12:06","12:46","13:31","14:21","15:11","15:51","16:31","17:06","17:36","18:06","18:41","19:41"],h:["6:11","7:01","7:41","8:21","9:01","9:41","10:21","11:01","11:41","12:21","13:01","13:41","14:21","15:01","15:41","16:31","17:21","18:11","19:11","20:16"]}},
+  'Залізничний вокзал (Немійський напрямок)':{m1:null,m2:{w:["6:13","7:03","7:33","8:03","8:33","9:03","9:33","10:08","10:48","11:28","12:08","12:48","13:33","14:23","15:13","15:53","16:33","17:08","17:38","18:08","18:43","19:43"],h:["6:13","7:03","7:43","8:23","9:03","9:43","10:23","11:03","11:43","12:23","13:03","13:43","14:23","15:03","15:43","16:33","17:23","18:13","19:13","20:18"]}},
+  'Верхня Немія':{m1:{w:["5:57","6:47","7:22","7:52","8:22","8:52","9:22","9:52","10:32","11:12","11:52","12:32","13:12","14:02","14:52","15:37","16:17","16:57","17:27","17:57","18:27","19:17","20:22"],h:["5:57","6:47","7:27","8:07","8:47","9:27","10:07","10:47","11:27","12:07","12:47","13:27","14:07","14:47","15:27","16:12","17:02","17:52","18:47","19:47"]},m2:{w:["6:14","7:04","7:34","8:04","8:34","9:04","9:34","10:09","10:49","11:29","12:09","12:49","13:34","14:24","15:14","15:54","16:34","17:09","17:39","18:09","18:44","19:44"],h:["6:14","7:04","7:44","8:24","9:04","9:44","10:24","11:04","11:44","12:24","13:04","13:44","14:24","15:04","15:44","16:34","17:24","18:14","19:14","20:19"]}}
+};
+
+/* ─── STATE ─── */
+var ST = {
+  route: 1,
+  isHoliday: (new Date().getDay()===0||new Date().getDay()===6),
+  myStopKey: null,   // key of pinned stop
+  isReversed: false,
+  query: ''
+};
+
+/* ─── HELPERS ─── */
+function nowMin(){ var n=new Date(); return n.getHours()*60+n.getMinutes(); }
+function parseT(t){ var p=t.split(':'); return parseInt(p[0])*60+parseInt(p[1]); }
+function findNext(times){ var now=nowMin(); for(var i=0;i<times.length;i++){ if(parseT(times[i])>=now) return i; } return -1; }
+function minUntil(t){ return parseT(t)-nowMin(); }
+function getTimes(key){ var dk=ST.isHoliday?'h':'w'; var mk='m'+ST.route; var d=SCH[key]; return d&&d[mk]?d[mk][dk]:[]; }
+
+/* ─── CLOCK ─── */
+function updateClock(){
+  var n=new Date();
+  var el=document.getElementById('liveClock');
+  if(el) el.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+}
+
+/* ─── CONTROLS ─── */
+function switchRoute(r){
+  ST.route=r; ST.myStopKey=null; ST.isReversed=false;
+  document.getElementById('tab1').className='segment__btn'+(r===1?' segment__btn--active':'');
+  document.getElementById('tab1').setAttribute('aria-selected',r===1);
+  document.getElementById('tab2').className='segment__btn'+(r===2?' segment__btn--active':'');
+  document.getElementById('tab2').setAttribute('aria-selected',r===2);
+  document.getElementById('segSlider').className='segment__slider glass-indicator'+(r===2?' segment__slider--right':'');
+  render();
+}
+
+function toggleDirection(){
+  ST.isReversed=!ST.isReversed;
+  render();
+}
+
+function setMyStop(key,name){
+  if(ST.myStopKey===key){ ST.myStopKey=null; } else { ST.myStopKey=key; }
+  render();
+}
+
+function onSearch(val){
+  ST.query=val.trim().toLowerCase();
+  document.getElementById('searchClear').className='search-clear'+(ST.query?' search-clear--visible':'');
+  render();
+}
+
+function clearSearch(){
+  ST.query='';
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').className='search-clear';
+  render();
+}
+
+/* ─── RENDER ─── */
+function render(){
+  var route=ROUTES[ST.route];
+  var stops=route.stops.slice();
+  if(ST.isReversed) stops=stops.slice().reverse();
+
+  var now=nowMin();
+  var mk='m'+ST.route;
+
+  // Find hero stop: myStop if set, else first stop
+  var heroKey=ST.myStopKey || stops[0].k;
+  var heroName=ST.myStopKey ? stops.find(function(s){return s.k===ST.myStopKey;}) : stops[0];
+  heroName=heroName?heroName.n:stops[0].n;
+  var heroTimes=getTimes(heroKey);
+  var heroNi=findNext(heroTimes);
+  var heroNt=heroNi>=0?heroTimes[heroNi]:null;
+  var heroMl=heroNt?minUntil(heroNt):null;
+
+  // Remaining trips from hero stop
+  var remaining=heroNt?heroTimes.length-heroNi:0;
+
+  // Update Day Toggle UI
+  document.getElementById('daySlider').className = 'segment__slider glass-indicator' + (ST.isHoliday ? ' segment__slider--right' : '');
+  document.getElementById('dayTab1').className = 'segment__btn' + (!ST.isHoliday ? ' segment__btn--active' : '');
+  document.getElementById('dayTab1').setAttribute('aria-selected', !ST.isHoliday);
+  document.getElementById('dayTab2').className = 'segment__btn' + (ST.isHoliday ? ' segment__btn--active' : '');
+  document.getElementById('dayTab2').setAttribute('aria-selected', ST.isHoliday);
+
+  var hHero='';
+
+  /* HERO */
+  var fromLabel=ST.isReversed?route.b:route.a;
+  var toLabel=ST.isReversed?route.a:route.b;
+  hHero+='<div class="hero">';
+  hHero+='<div class="hero__main">';
+  hHero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+  hHero+='<div class="hero__stop-label" style="margin:0;"><span class="hero__pulse"></span>'+(ST.myStopKey?'МОЯ ЗУПИНКА':'ПОЧАТОК МАРШРУТУ')+'</div>';
+  var dirBtnClass = ST.isReversed ? 'dir-btn dir-btn--active' : 'dir-btn';
+  var dirBtnBadge = ST.isReversed ? '<div class="dir-badge"></div>' : '';
+  hHero+='<button class="'+dirBtnClass+'" style="width:30px;height:30px;margin:0;box-shadow:none;background:var(--bg);" onclick="toggleDirection()" title="Змінити напрямок" aria-label="Змінити напрямок"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>'+dirBtnBadge+'</button>';
+  hHero+='</div>';
+  hHero+='<div class="hero__stop-name" style="font-size:22px;line-height:1.2;margin-bottom:2px;white-space:normal;">'+fromLabel+' <span style="color:var(--text-tertiary);">&rarr;</span> '+toLabel+'</div>';
+  hHero+='<div class="hero__stop-name" style="font-size:14px;color:var(--text-secondary);font-weight:500;margin-bottom:12px;">Посадка: '+heroName+'</div>';
+  if(heroMl!==null&&heroMl>=0){
+    if(heroMl===0){ hHero+='<div class="hero__minutes">Зараз</div>'; }
+    else if(heroMl>=60){
+      var hM=Math.floor(heroMl/60);var mM=heroMl%60;
+      hHero+='<div class="hero__minutes">'+hM+'<em>год</em> '+mM+'<em>хв</em></div>';
+    }
+    else { hHero+='<div class="hero__minutes">'+heroMl+'<em>хв</em></div>'; }
+    hHero+='<div class="hero__departure">Відправлення о '+heroNt+'</div>';
+  } else {
+    hHero+='<div class="hero__minutes" style="font-size:20px;font-weight:700;color:var(--text-secondary);line-height:1.3">Рейсів<br>більше немає</div>';
+    hHero+='<div class="hero__departure">Перший завтра о '+(heroTimes.length?heroTimes[0]:'—')+'</div>';
+  }
+  hHero+='</div></div>';
+
+  /* STATS */
+  hHero+='<div class="stats-bar">';
+  hHero+='<div class="stat-chip"><div class="stat-chip__icon stat-chip__icon--green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-chip__label">Інтервал</div><div class="stat-chip__value">'+(ST.isHoliday?route.ih:route.iw)+'</div></div></div>';
+  hHero+='<div class="stat-chip"><div class="stat-chip__icon stat-chip__icon--orange"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="stat-chip__label">Рейсів ще</div><div class="stat-chip__value">'+(remaining>0?remaining:'0')+'</div></div></div>';
+  hHero+='</div>';
+
+  /* DIRECTION BANNER (reverse mode) */
+  if(ST.isReversed){
+    hHero+='<div class="dir-banner">';
+    hHero+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+    hHero+='<p>Зворотній напрямок. Розклад показано у зворотньому порядку — це час прибуття на кожну зупинку при русі <b>від '+route.b+' до '+route.a+'</b>.</p>';
+    hHero+='</div>';
+  }
+  document.getElementById('heroContent').innerHTML = hHero;
+
+  var hTimeline='';
+
+  /* SECTION HEADER BADGE */
+  var filteredCount=0;
+  var filteredStops=stops.filter(function(s){
+    if(!ST.query) return true;
+    return s.n.toLowerCase().indexOf(ST.query)!==-1;
+  });
+  filteredCount=filteredStops.length;
+
+  var searchBadgeEl = document.getElementById('searchBadge');
+  if(ST.query&&filteredCount>0) searchBadgeEl.innerHTML = '<div class="section-header__badge">'+filteredCount+' знайдено</div>';
+  else if(ST.query&&filteredCount===0) searchBadgeEl.innerHTML = '<div class="section-header__badge" style="background:rgba(255,59,48,.12);color:var(--danger)">Не знайдено</div>';
+  else searchBadgeEl.innerHTML = '';
+
+  /* NO RESULTS */
+  if(ST.query&&filteredCount===0){
+    hTimeline+='<div class="no-results">';
+    hTimeline+='<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="8" y1="11" x2="14" y2="11"/></svg>';
+    hTimeline+='<div class="no-results__title">Зупинку не знайдено</div>';
+    hTimeline+='<div class="no-results__sub">Перевірте написання або <button onclick="clearSearch()" style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;">очистіть пошук</button></div>';
+    hTimeline+='</div>';
+  }
+
+  /* TIMELINE */
+  hTimeline+='<div class="timeline">';
+  filteredStops.forEach(function(stop, idx){
+    var times=getTimes(stop.k);
+    var si=findNext(times);
+    var st=si>=0?times[si]:null;
+    var isAllPast=times.length>0&&st===null;
+    var isMyStop=ST.myStopKey===stop.k;
+    var isNextStop=!ST.myStopKey&&si>=0&&!isAllPast&&idx===filteredStops.findIndex(function(s2){var t2=getTimes(s2.k); return findNext(t2)>=0;});
+
+    var cls='stop-row';
+    if(isMyStop) cls+=' stop-row--mystop';
+    else if(isNextStop&&!ST.myStopKey) cls+=' stop-row--next-stop';
+    if(isAllPast) cls+=' stop-row--past';
+    if(stop.ep) cls+=' stop-row--endpoint';
+
+    hTimeline+='<div class="'+cls+'" style="animation-delay:'+(idx*0.025)+'s">';
+    hTimeline+='<div class="stop-row__dot"><div class="stop-row__dot-inner"></div></div>';
+    hTimeline+='<div class="stop-row__body">';
+    hTimeline+='<div class="stop-row__top">';
+    hTimeline+='<div class="stop-row__name">'+stop.n+'</div>';
+    hTimeline+='<div class="stop-row__actions">';
+    if(st&&!isAllPast){
+      hTimeline+='<div class="stop-row__next-badge">';
+      hTimeline+='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+      hTimeline+=st+'</div>';
+    }
+    // My stop pin button
+    hTimeline+='<button class="stop-row__mystop-btn'+(isMyStop?' stop-row__mystop-btn--active':'')+'" onclick="event.stopPropagation();setMyStop(\''+stop.k.replace(/'/g,"\\'")+'\')" title="'+(isMyStop?'Зняти як мою зупинку':'Встановити як мою зупинку')+'" aria-pressed="'+isMyStop+'">';
+    hTimeline+='<svg width="13" height="13" viewBox="0 0 24 24" fill="'+(isMyStop?'#ff9500':'none')+'" stroke="'+(isMyStop?'#ff9500':'currentColor')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+    hTimeline+='</button>';
+    hTimeline+='</div></div>';
+
+    if(times.length>0){
+      hTimeline+='<div class="times-grid">';
+      times.forEach(function(t){
+        var tm=parseT(t);
+        var c='time-chip';
+        if(t===st) c+=' time-chip--next';
+        else if(tm<now) c+=' time-chip--past';
+        hTimeline+='<span class="'+c+'">'+t+'</span>';
+      });
+      hTimeline+='</div>';
+    } else {
+      hTimeline+='<span style="font-size:11px;color:var(--text-tertiary)">Дані відсутні</span>';
+    }
+    hTimeline+='</div>';
+    hTimeline+='</div>';
+  });
+  hTimeline+='</div>';
+
+  /* CTA */
+  hTimeline+='<div class="cta-wrap"><a href="index.html" class="map-cta"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Показати маршрут на карті</a></div>';
+  hTimeline+='<div style="height:32px"></div>';
+
+  document.getElementById('timelineContent').innerHTML = hTimeline;
+}
+
+function setDay(isHoliday){
+  if(ST.isHoliday === isHoliday) return;
+  ST.isHoliday = isHoliday;
+  render();
+}
+
+updateClock();
+setInterval(updateClock, 10000);
+setInterval(render, 60000);
+render();
+</script>
+</body>
+</html>
