@@ -272,12 +272,20 @@ var SCH={
 
 /* ─── STATE ─── */
 var ST = {
-  route: 1,
-  isHoliday: (new Date().getDay()===0||new Date().getDay()===6),
-  myStopKey: null,   // key of pinned stop
-  isReversed: false,
+  route: parseInt(localStorage.getItem('nearbus_route')) || 1,
+  isHoliday: localStorage.getItem('nearbus_isHoliday') !== null ? localStorage.getItem('nearbus_isHoliday') === 'true' : (new Date().getDay()===0||new Date().getDay()===6),
+  myStopKey: localStorage.getItem('nearbus_myStopKey') || null,
+  isReversed: localStorage.getItem('nearbus_isReversed') === 'true',
   query: ''
 };
+
+function saveState() {
+  localStorage.setItem('nearbus_route', ST.route);
+  localStorage.setItem('nearbus_isHoliday', ST.isHoliday);
+  if(ST.myStopKey) localStorage.setItem('nearbus_myStopKey', ST.myStopKey);
+  else localStorage.removeItem('nearbus_myStopKey');
+  localStorage.setItem('nearbus_isReversed', ST.isReversed);
+}
 
 /* ─── HELPERS ─── */
 function nowMin(){ var n=new Date(); return n.getHours()*60+n.getMinutes(); }
@@ -296,6 +304,7 @@ function updateClock(){
 /* ─── CONTROLS ─── */
 function switchRoute(r){
   ST.route=r; ST.myStopKey=null; ST.isReversed=false;
+  saveState();
   document.getElementById('tab1').className='segment__btn'+(r===1?' segment__btn--active':'');
   document.getElementById('tab1').setAttribute('aria-selected',r===1);
   document.getElementById('tab2').className='segment__btn'+(r===2?' segment__btn--active':'');
@@ -306,11 +315,13 @@ function switchRoute(r){
 
 function toggleDirection(){
   ST.isReversed=!ST.isReversed;
+  saveState();
   render();
 }
 
 function setMyStop(key,name){
   if(ST.myStopKey===key){ ST.myStopKey=null; } else { ST.myStopKey=key; }
+  saveState();
   render();
 }
 
@@ -485,6 +496,7 @@ function render(){
 function setDay(isHoliday){
   if(ST.isHoliday === isHoliday) return;
   ST.isHoliday = isHoliday;
+  saveState();
   render();
 }
 
