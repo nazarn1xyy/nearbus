@@ -345,9 +345,7 @@
   }
 
   function fetchAirRaidStatus() {
-    fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.alerts.in.ua/v1/alerts/active.json'), {
-      headers: { 'Authorization': 'Bearer acc0d71050680284f35ac1d12da35a780db22896ab2203' }
-    })
+    fetch('/api/alerts')
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data && data.alerts) {
@@ -371,9 +369,7 @@
       btnLastAlert.innerHTML = '<span class="spinner" style="width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;margin-right:4px;"></span> Завантаження...';
       
       // UID 4 = Vinnytsia Oblast on alerts.in.ua API
-      fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.alerts.in.ua/v1/regions/4/alerts/month_ago.json'), {
-        headers: { 'Authorization': 'Bearer acc0d71050680284f35ac1d12da35a780db22896ab2203' }
-      })
+      fetch('/api/alertsHistory')
       .then(function(r) { return r.json(); })
       .then(function(data) {
         btnLastAlert.innerHTML = originalText;
