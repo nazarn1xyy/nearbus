@@ -458,6 +458,7 @@ function render(){
 
     if(times.length>0){
       hTimeline+='<div class="times-grid">';
+      var now = nowMin();
       times.forEach(function(t){
         var tm=parseT(t);
         var c='time-chip';
