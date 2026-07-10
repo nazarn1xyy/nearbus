@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'SF Pro Display';
+      src: local('SF Pro Display'), local('-apple-system'), local('BlinkMacSystemFont');
+      font-weight: 400 800;
+      font-display: swap;
+    }
+  </style>
   <link rel="stylesheet" href="tokens.css">
   <style>
     /* Force Dark Mode for presentation */
@@ -21,13 +29,16 @@
       --separator: rgba(84, 84, 88, 0.35);
       --accent: #0a84ff;
       --white: #ffffff;
+      --danger: #ff453a;
+      --success: #30d158;
+      --warning: #ffd60a;
       --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
     body {
       margin: 0;
       background: #0a0a0a;
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
       color: var(--text);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
@@ -249,13 +260,12 @@
       letter-spacing: 0.5px;
     }
 
-    /* Accent dot in logo */
-    .logo-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--accent);
-      border-radius: 50%;
+    .logo-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
       flex-shrink: 0;
+      object-fit: cover;
     }
 
     .slide-number {
@@ -304,20 +314,22 @@
       position: absolute;
       width: 900px;
       height: 900px;
-      background: radial-gradient(circle, rgba(10,132,255,0.12) 0%, rgba(0,0,0,0) 70%);
+      background: radial-gradient(circle, rgba(10,132,255,0.25) 0%, rgba(10,132,255,0.08) 30%, rgba(10,132,255,0) 70%);
       border-radius: 50%;
       z-index: 0;
       pointer-events: none;
+      filter: blur(60px);
     }
 
     .bg-glow-warm {
       position: absolute;
       width: 700px;
       height: 700px;
-      background: radial-gradient(circle, rgba(10,132,255,0.07) 0%, rgba(0,0,0,0) 70%);
+      background: radial-gradient(circle, rgba(10,132,255,0.18) 0%, rgba(10,132,255,0.05) 35%, rgba(10,132,255,0) 70%);
       border-radius: 50%;
       z-index: 0;
       pointer-events: none;
+      filter: blur(50px);
     }
 
     .content-z {
@@ -342,16 +354,8 @@
     }
   
     /* --- NEW VISUALS --- */
-        .text-gradient {
-      background-image: linear-gradient(135deg, #4da3ff 0%, #0a84ff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: transparent;
-      -webkit-box-decoration-break: clone;
-      box-decoration-break: clone;
-      transform: translateZ(0);
-      display: inline-block;
+        .text-accent {
+      color: #0a84ff;
     }
     
     .noise-overlay {
@@ -487,9 +491,7 @@
     }
 
       @media print {
-      .text-gradient {
-        background: none !important;
-        -webkit-text-fill-color: #0a84ff !important;
+      .text-accent {
         color: #0a84ff !important;
       }
     }
@@ -501,19 +503,13 @@
 
   <!-- SLIDE 1: Title Hero -->
   <div class="slide">
-    <div style="position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 1200px; height: 1200px; background: radial-gradient(circle, rgba(10,132,255,0.18) 0%, rgba(10,132,255,0.04) 45%, rgba(0,0,0,0) 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+    <div style="position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 1200px; height: 1200px; background: radial-gradient(circle, rgba(10,132,255,0.22) 0%, rgba(10,132,255,0.06) 35%, rgba(10,132,255,0) 70%); border-radius: 50%; z-index: 0; pointer-events: none; filter: blur(80px);"></div>
     <div class="content-z hero-center">
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:40px;">
-        <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-          <rect width="52" height="52" rx="14" fill="rgba(10,132,255,0.15)" stroke="rgba(10,132,255,0.4)" stroke-width="1"/>
-          <path d="M13 34 C13 34 18 20 26 20 C34 20 39 34 39 34" stroke="#0a84ff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <circle cx="19" cy="34" r="3.5" fill="#0a84ff"/>
-          <circle cx="33" cy="34" r="3.5" fill="#0a84ff"/>
-          <path d="M22 27 L30 27" stroke="#0a84ff" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+        <img src="frontend/icon-192.png" style="width:56px;height:56px;border-radius:14px;flex-shrink:0;" alt="Nearbus">
         <span style="font-size:22px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:3px;text-transform:uppercase;">Nearbus</span>
       </div>
-      <h1 style="font-size:110px;letter-spacing:-3px;line-height:1.0;margin-bottom:48px;color:#ffffff;"><span class="text-gradient">Автобуси</span><br>в реальному<br>часі.</h1>
+      <h1 style="font-size:110px;letter-spacing:-3px;line-height:1.0;margin-bottom:48px;color:#ffffff;"><span class="text-accent">Автобуси</span><br>в реальному<br>часі.</h1>
       <p style="font-size:26px;color:rgba(255,255,255,0.45);letter-spacing:0.5px;margin:0;">Могилів-Подільський · Точний трекінг · Нативний UX</p>
     </div>
   </div>
@@ -524,8 +520,8 @@
     <!-- Fix #9: glow on every slide -->
     <div class="bg-glow" style="top: -200px; left: -200px;"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">02 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">02 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-content">
@@ -533,9 +529,9 @@
         <div class="eyebrow animate-reveal delay-1">Контекст</div>
         <h2 class="animate-reveal delay-1">Проблема сьогодення</h2>
         
-        <div class="animate-reveal delay-2" style="font-size: 100px; font-weight: 700; color: var(--accent); letter-spacing: -3px; line-height: 1; margin: 40px 0 20px;">73%</div>
+        <div class="animate-reveal delay-2" style="font-size: 100px; font-weight: 700; color: var(--accent); letter-spacing: -3px; line-height: 1; margin: 40px 0 20px;">2 / 10</div>
         <p class="animate-reveal delay-2" style="font-size: 32px; color: #fff; line-height: 1.4; margin-bottom: 40px;">
-          користувачів втрачають час через зависання додатків та неточні графіки міського транспорту.
+          маршрутів та автобусів у реальному часі. Оновлення позицій — щосекунди через WebSocket.
         </p>
 
         <div class="glass-card animate-reveal delay-3" style="padding: 32px; margin-bottom: 20px;">
@@ -549,7 +545,7 @@
       </div>
       <!-- Fix #1 & #6: Real mockup instead of SVG placeholder -->
       <div class="grid-2-image">
-        <img src="../Mockups/Group 9.png" alt="Problem illustration mockup" class="mockup-mobile">
+        <img src="Mockups/Group 9.png" alt="Problem illustration mockup" class="mockup-mobile">
       </div>
     </div>
   </div>
@@ -558,12 +554,12 @@
   <div class="slide">
     <div class="bg-glow" style="bottom: -250px; right: -200px;"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">03 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">03 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-image">
-        <img src="../Mockups/Group 2.png" alt="Mobile UI" class="mockup-mobile">
+        <img src="Mockups/Group 2.png" alt="Mobile UI" class="mockup-mobile">
       </div>
       <div class="grid-2-content">
         <!-- Fix #3: eyebrow -->
@@ -588,53 +584,113 @@
   <div class="slide">
     <div class="bg-glow" style="top: -200px; left: -200px;"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">04 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">04 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-content">
         <!-- Fix #3: eyebrow -->
         <div class="eyebrow animate-reveal delay-1">Технологія</div>
-        <h2 class="animate-reveal delay-1"><span class="text-gradient">Smart Routing</span></h2>
-        <p class="animate-reveal delay-2">Ми використовуємо <span class="accent-text">OSRM</span> для прив'язки позицій транспорту до реальної геометрії доріг.</p>
+        <h2 class="animate-reveal delay-1"><span class="text-accent">Smart Routing</span></h2>
+        <p class="animate-reveal delay-2">Ми використовуємо <span class="accent-text">інтерполяцію між зупинками</span> для плавного руху транспорту по маршруту. Кожна позиція оновлюється щосекунди через WebSocket.</p>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px;">
           <div class="glass-card animate-reveal delay-3" style="padding: 32px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:40px; height:40px; color:var(--accent); margin-bottom:16px;"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             <h4 style="font-size: 24px; margin:0 0 8px 0; color:#fff;">Точна позиція</h4>
-            <p style="font-size: 18px; color: var(--text-secondary); margin:0;">Жодних "польотів" над будинками. Транспорт рухається тільки по дорогах.</p>
+            <p style="font-size: 18px; color: var(--text-secondary); margin:0;">Автобус рухається по маршруту з плавною інтерполяцією між зупинками.</p>
           </div>
           <div class="glass-card animate-reveal delay-3" style="padding: 32px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:40px; height:40px; color:var(--accent); margin-bottom:16px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             <h4 style="font-size: 24px; margin:0 0 8px 0; color:#fff;">Інтерполяція</h4>
-            <p style="font-size: 18px; color: var(--text-secondary); margin:0;">Обчислення часу на основі реальної відстані по трасі.</p>
+            <p style="font-size: 18px; color: var(--text-secondary); margin:0;">Обчислення часу прибуття на основі реальної відстані між зупинками.</p>
           </div>
         </div>
       </div>
       <div class="grid-2-image">
-        <img src="../Mockups/Group 4.png" alt="Map Routing Mockup" class="mockup-mobile">
+        <img src="Mockups/Group 4.png" alt="Map Routing Mockup" class="mockup-mobile">
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 5: <span class="text-gradient">Кросплатформенність</span> — Group 10 all-devices -->
+  <!-- SLIDE: Архитектура -->
+  <div class="slide">
+    <div class="bg-glow" style="bottom: -200px; right: -200px;"></div>
+    <div class="header-bar">
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">05 / 15</div>
+    </div>
+    <div class="content-z" style="display: flex; flex-direction: column; justify-content: center; height: 100%; padding-top: 40px;">
+      <div class="eyebrow animate-reveal delay-1">Під капотом</div>
+      <h2 class="animate-reveal delay-1" style="margin-bottom: 48px;">Архітектура</h2>
+
+      <div class="animate-reveal delay-2" style="display: flex; align-items: center; justify-content: center; gap: 0; margin: 20px 0;">
+        <div class="glass-card" style="padding: 32px 40px; text-align: center; min-width: 280px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;"><path d="M5 12H2a10 10 0 0 1 20 0h-3"></path><rect x="6" y="12" width="12" height="8" rx="2"></rect><path d="M9 17h6"></path></svg>
+          <h4 style="font-size:24px; margin:0 0 8px 0; color:#fff;">Python Backend</h4>
+          <p style="font-size:18px; margin:0; color:var(--text-secondary);">asyncio + websockets<br>Симуляція 10 автобусів<br>Оновлення 1 раз/сек</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; padding: 0 24px;">
+          <div style="font-size: 28px; color: var(--accent); font-weight: 700; margin-bottom: 4px;">WebSocket</div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <div style="font-size: 14px; color: var(--text-tertiary); margin-top: 4px;">JSON payload</div>
+        </div>
+
+        <div class="glass-card" style="padding: 32px 40px; text-align: center; min-width: 280px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          <h4 style="font-size:24px; margin:0 0 8px 0; color:#fff;">Frontend</h4>
+          <p style="font-size:18px; margin:0; color:var(--text-secondary);">Vanilla JS + Leaflet<br>CARTO Voyager tiles<br>Geolocation API</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; padding: 0 24px;">
+          <div style="font-size: 28px; color: var(--accent); font-weight: 700; margin-bottom: 4px;">PWA</div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <div style="font-size: 14px; color: var(--text-tertiary); margin-top: 4px;">Service Worker</div>
+        </div>
+
+        <div class="glass-card" style="padding: 32px 40px; text-align: center; min-width: 280px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <h4 style="font-size:24px; margin:0 0 8px 0; color:#fff;">Offline Cache</h4>
+          <p style="font-size:18px; margin:0; color:var(--text-secondary);">Тайли карти + shell<br>Auto-reconnect<br>Exponential backoff</p>
+        </div>
+      </div>
+
+      <div class="animate-reveal delay-3" style="display: flex; justify-content: center; gap: 32px; margin-top: 40px;">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--text-secondary);">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--success);"></div>
+          2 маршрутів
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--text-secondary);">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--accent);"></div>
+          10 автобусів
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--text-secondary);">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--warning);"></div>
+          Haversine ETA
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Кросплатформенність — Group 10 all-devices -->
   <div class="slide">
     <!-- Strong centered glow behind all-devices image -->
-    <div style="position:absolute; bottom: -80px; left: 50%; transform: translateX(-50%); width: 1600px; height: 800px; background: radial-gradient(ellipse, rgba(10,132,255,0.30) 0%, rgba(10,132,255,0.07) 50%, rgba(0,0,0,0) 72%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+    <div style="position:absolute; bottom: -80px; left: 50%; transform: translateX(-50%); width: 1600px; height: 800px; background: radial-gradient(ellipse, rgba(10,132,255,0.18) 0%, rgba(10,132,255,0.05) 40%, rgba(10,132,255,0) 70%); border-radius: 50%; z-index: 0; pointer-events: none; filter: blur(70px);"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">05 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">06 / 15</div>
     </div>
     <div class="content-z" style="display: flex; flex-direction: column; align-items: center; height: 100%; padding-top: 80px;">
       <div class="eyebrow animate-reveal delay-1" style="text-align: center;">Адаптивність</div>
-      <h2 class="animate-reveal delay-1" style="text-align: center; margin-bottom: 16px;"><span class="text-gradient">Кросплатформенність</span></h2>
+      <h2 class="animate-reveal delay-1" style="text-align: center; margin-bottom: 16px;"><span class="text-accent">Кросплатформенність</span></h2>
       
       <div class="animate-reveal delay-2" style="font-size: 56px; font-weight: 700; color: var(--accent); letter-spacing: -2px; text-align: center; margin: 10px 0 24px;">1 Кодова база = 3 Платформи</div>
       
       <p class="animate-reveal delay-2" style="text-align: center; max-width: 960px; margin: 0 auto 32px; font-size: 24px;">Ідеальний вигляд на iOS, Android та Web. Мобільна шторка автоматично перетворюється на бокову панель.</p>
 
       <div class="animate-reveal delay-3" style="flex: 1; display: flex; justify-content: center; align-items: flex-start; width: 100%; margin-top: -60px;">
-        <img src="../Mockups/Group 10.png" alt="All devices mockup" style="max-height: 640px; width: auto; max-width: 1400px; object-fit: contain; display: block; filter: drop-shadow(0 0 60px rgba(10,132,255,0.25)) drop-shadow(0 40px 80px rgba(0,0,0,0.8));">
+        <img src="Mockups/Group 10.png" alt="All devices mockup" style="max-height: 640px; width: auto; max-width: 1400px; object-fit: contain; display: block; filter: drop-shadow(0 40px 80px rgba(0,0,0,0.8));">
       </div>
     </div>
   </div>
@@ -644,12 +700,12 @@
   <div class="slide">
     <div class="bg-glow" style="bottom: -200px; left: -200px;"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">06 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">07 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-image">
-        <img src="../Mockups/Group 4.png" alt="PWA Offline" class="mockup-mobile">
+        <img src="Mockups/Group 6.png" alt="PWA Offline" class="mockup-mobile">
       </div>
       <div class="grid-2-content">
         <!-- Fix #3: eyebrow -->
@@ -689,8 +745,8 @@
   <div class="slide">
     <div class="bg-glow" style="top: -200px; left: -200px;"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">07 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">08 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-content">
@@ -714,7 +770,7 @@
         </div>
       </div>
       <div class="grid-2-image">
-        <img src="../Mockups/новые/Group 12.png" alt="iOS Style Mockup" class="mockup-mobile">
+        <img src="Mockups/новые/Group 12.png" alt="iOS Style Mockup" class="mockup-mobile">
       </div>
     </div>
   </div>
@@ -723,12 +779,12 @@
   <div class="slide">
     <div class="bg-glow" style="bottom: -200px; right: -200px;"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">08 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">09 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-image">
-        <img src="../Mockups/новые/Group 11.png" alt="Air Raid Alerts Mockup" class="mockup-mobile">
+        <img src="Mockups/новые/Group 11.png" alt="Air Raid Alerts Mockup" class="mockup-mobile">
       </div>
       <div class="grid-2-content">
         <div class="eyebrow">Безпека</div>
@@ -757,8 +813,8 @@
   <div class="slide">
     <div class="bg-glow" style="top: 0; left: 50%; transform: translateX(-50%);"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">09 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">10 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-content">
@@ -780,7 +836,7 @@
         </div>
       </div>
       <div class="grid-2-image">
-        <img src="../Mockups/новые/Group 10.png" alt="Schedule Mockup" class="mockup-mobile">
+        <img src="Mockups/новые/Group 10.png" alt="Schedule Mockup" class="mockup-mobile">
       </div>
     </div>
   </div>
@@ -789,8 +845,8 @@
   <div class="slide">
     <div class="bg-glow" style="bottom: -200px; left: 50%; transform: translateX(-50%);"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">10 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">11 / 15</div>
     </div>
     <div class="content-z" style="display: flex; height: 100%; padding-top: 80px;">
       <!-- Left: stats -->
@@ -801,16 +857,16 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; margin-top: 40px;">
           <div class="glass-card stat-card animate-reveal delay-3" style="padding: 40px 28px;">
-            <div class="value">40%</div>
-            <div class="label">Економія часу очікування</div>
+            <div class="value">1<span style="font-size:36px;">с</span></div>
+            <div class="label">Інтервал оновлення позицій</div>
           </div>
           <div class="glass-card stat-card animate-reveal delay-3" style="padding: 40px 28px;">
             <div class="value" style="font-size: 56px; letter-spacing: -1px;">&lt;400<span style="font-size:36px;">мс</span></div>
-            <div class="label">Відгук інтерфейсу (Doherty Threshold)</div>
+            <div class="label">Відгук інтерфейсу</div>
           </div>
           <div class="glass-card stat-card animate-reveal delay-3" style="padding: 40px 28px;">
-            <div class="value">99%</div>
-            <div class="label">Точність гео-прив'язки OSRM</div>
+            <div class="value">2</div>
+            <div class="label">Реальних маршрутів міста</div>
           </div>
         </div>
       </div>
@@ -820,7 +876,7 @@
         <div class="qr-wrapper">
           <p class="eyebrow" style="margin-bottom: 24px;">Спробуй зараз</p>
           <!-- SVG-based fake QR code -->
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://nearbus.online" width="220" height="220" style="border-radius: 16px; background: white; padding: 10px;" alt="QR Code">
+          <img src="qr_nearbus.png" width="220" height="220" style="border-radius: 16px; background: white; padding: 10px;" alt="QR Code">
           <p class="qr-label" style="margin-top: 20px;"><a href="https://nearbus.online" style="color: inherit; text-decoration: none;">nearbus.online</a></p>
           <p style="font-size: 18px; color: var(--text-tertiary); margin: 0;">Спробуй прямо зараз ↑</p>
         </div>
@@ -828,16 +884,51 @@
     </div>
   </div>
 
-  <!-- SLIDE 9: Майбутнє -->
+  <!-- SLIDE: Демо -->
   <div class="slide">
     <div class="bg-glow" style="top: -200px; right: -200px;"></div>
     <div class="header-bar">
-      <div class="logo"><div class="logo-dot"></div>Nearbus</div>
-      <div class="slide-number">11 / 12</div>
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">12 / 15</div>
+    </div>
+    <div class="content-z grid-2">
+      <div class="grid-2-content">
+        <div class="eyebrow animate-reveal delay-1">Жива демонстрація</div>
+        <h2 class="animate-reveal delay-1">Спробуй зараз</h2>
+        <p class="animate-reveal delay-2" style="margin-bottom: 32px;">Скануй QR-код і відкрий додаток на своєму телефоні. Працює в будь-якому браузері, встановлюється як PWA.</p>
+
+        <div class="animate-reveal delay-3" style="display: flex; flex-direction: column; align-items: flex-start; gap: 20px;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;">1</div>
+            <p style="font-size: 22px; color: var(--text-secondary); margin: 0;">Скануй QR-код камерою телефону</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;">2</div>
+            <p style="font-size: 22px; color: var(--text-secondary); margin: 0;">Дозволь геолокацію для пошуку автобусів</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;">3</div>
+            <p style="font-size: 22px; color: var(--text-secondary); margin: 0;">Додай на головний екран як застосунок</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2-image" style="flex-direction: column; gap: 20px;">
+        <img src="qr_nearbus.png" width="300" height="300" style="border-radius: 20px; background: white; padding: 16px;" alt="QR Code">
+        <p style="font-size: 24px; color: var(--text-secondary); margin: 0; font-weight: 600;">nearbus.online</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE: Майбутнє -->
+  <div class="slide">
+    <div class="bg-glow" style="top: -200px; right: -200px;"></div>
+    <div class="header-bar">
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">13 / 15</div>
     </div>
     <div class="content-z grid-2">
       <div class="grid-2-image">
-        <img src="../Mockups/Screenshot 2026-07-02 at 12.39.14 1-front 1.png" alt="Desktop Interface 2" style="max-height: 520px; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
+        <img src="Mockups/Screenshot 2026-07-02 at 12.39.14 1-front 1.png" alt="Desktop Interface 2" style="max-height: 520px; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
       </div>
       <div class="grid-2-content">
         <div class="eyebrow animate-reveal delay-1">Roadmap</div>
@@ -871,25 +962,60 @@
     </div>
   </div>
 
-  <!-- SLIDE 10: Q&A -->
+  <!-- SLIDE: Команда -->
   <div class="slide">
-    <div class="bg-glow" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 1400px; height: 1400px; background: radial-gradient(circle, rgba(10,132,255,0.18) 0%, rgba(0,0,0,0) 65%);"></div>
+    <div class="bg-glow" style="top: -200px; left: -200px;"></div>
+    <div class="header-bar">
+      <div class="logo"><img src="frontend/icon-192.png" class="logo-img" alt="Nearbus">Nearbus</div>
+      <div class="slide-number">14 / 15</div>
+    </div>
+    <div class="content-z" style="display: flex; flex-direction: column; justify-content: center; height: 100%; padding-top: 40px;">
+      <div class="eyebrow animate-reveal delay-1">Хто ми</div>
+      <h2 class="animate-reveal delay-1" style="margin-bottom: 48px;">Команда</h2>
+
+      <div class="animate-reveal delay-2" style="display: flex; justify-content: center; gap: 48px;">
+        <div class="glass-card" style="padding: 40px; text-align: center; min-width: 320px;">
+          <div style="width: 96px; height: 96px; border-radius: 50%; background: rgba(10,132,255,0.15); border: 3px solid var(--accent); margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; color: var(--accent);">N</div>
+          <h4 style="font-size: 28px; margin: 0 0 8px 0; color: #fff;">Назарій</h4>
+          <p style="font-size: 20px; color: var(--accent); margin: 0 0 12px 0; font-weight: 600;">Frontend &amp; Design</p>
+          <p style="font-size: 18px; color: var(--text-secondary); margin: 0;">PWA, Leaflet, UX/UI<br>Нативний iOS-стиль інтерфейсу</p>
+        </div>
+        <div class="glass-card" style="padding: 40px; text-align: center; min-width: 320px;">
+          <div style="width: 96px; height: 96px; border-radius: 50%; background: rgba(10,132,255,0.15); border: 3px solid var(--accent); margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; color: var(--accent);">D</div>
+          <h4 style="font-size: 28px; margin: 0 0 8px 0; color: #fff;">Дмитро</h4>
+          <p style="font-size: 20px; color: var(--accent); margin: 0 0 12px 0; font-weight: 600;">Backend &amp; Data</p>
+          <p style="font-size: 18px; color: var(--text-secondary); margin: 0;">Python, asyncio, WebSocket<br>Симуляція автобусів, API alerts.in.ua</p>
+        </div>
+      </div>
+
+      <div class="animate-reveal delay-3" style="display: flex; justify-content: center; gap: 32px; margin-top: 48px;">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--text-secondary);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          nazariy@smarttransit.app
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--text-secondary);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          github.com/nazarn1xyy/nearbus
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: Q&A -->
+  <div class="slide">
+    <div class="bg-glow" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 1200px; height: 1200px;"></div>
     <div class="content-z hero-center">
       <h1 style="font-size: 96px; color: var(--accent); margin-bottom: 24px;">Дякуємо!</h1>
       <p style="font-size: 32px; color: rgba(255,255,255,0.6); margin-top: 0;">Питання? Із задоволенням.</p>
 
-      <div style="display: flex; gap: 32px; margin-top: 72px;">
-        <div class="glass-card" style="padding: 28px 52px; text-align: center;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          <div style="font-size: 20px; color: var(--text-secondary);">nazariy@smarttransit.app</div>
+      <div style="display: flex; gap: 32px; margin-top: 72px; align-items: center;">
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+          <img src="qr_nearbus.png" width="180" height="180" style="border-radius: 12px; background: white; padding: 8px; display: block;" alt="QR Code">
+          <div style="font-size: 18px; color: var(--text-secondary); margin-top: 14px;">nearbus.online</div>
         </div>
         <div class="glass-card" style="padding: 28px 52px; text-align: center;">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
           <div style="font-size: 20px; color: var(--text-secondary);">github.com/nazarn1xyy/nearbus</div>
-        </div>
-        <div class="glass-card" style="padding: 28px 52px; text-align: center;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          <div style="font-size: 20px; color: var(--text-secondary);">nearbus.online</div>
         </div>
       </div>
     </div>
@@ -897,6 +1023,24 @@
 
 </div>
 
+<!-- SPEAKER NOTES (hidden, for presenter reference) -->
+<div style="display:none" id="speaker-notes">
+  Slide 01 (Title): "Це Nearbus — додаток для відстеження автобусів у Могилеві-Подільському в реальному часі. Робили на хакатоні."
+  Slide 02 (Проблема): "Проблема проста — люди не знають, коли приїде автобус. Ми оцифрували 2 реальних маршрутів і запустили 10 автобусів з оновленням щосекунди."
+  Slide 03 (Рішення): "Ми зробили інтерфейс у стилі Apple Maps — чистий, з нативними жестами. Шторка знизу, свайпи, геолокація."
+  Slide 04 (Smart Routing): "Автобуси рухаються плавно між зупинками за допомогою інтерполяції. Не OSRM, але для демо цього достатньо. Час прибуття рахується по відстані."
+  Slide 05 (Архітектура): "Бекенд на Python — asyncio + websockets. Фронтенд — vanilla JS + Leaflet, без фреймворків. PWA з service worker для офлайн. WebSocket перепідключається автоматично."
+  Slide 06 (Кросплатформенність): "Одна кодова база — працює на iOS, Android, Web. PWA встановлюється з браузеру, виглядає як нативний додаток."
+  Slide 07 (PWA): "Service worker кешує тайли карти і код. Працює навіть при поганому інтернеті. Без App Store, без Google Play."
+  Slide 08 (Нативний UX): "Скляні панелі, плавна шторка, safe-area для iPhone. Все на чистому CSS, без бібліотек."
+  Slide 09 (Тривоги): "Підключили alerts.in.ua API для Вінницької області. Додаток показує тривогу прямо на карті — не треба відкривати інші програми."
+  Slide 10 (Розклад): "Ми перенесли таблички з зупинок у телефон. Можна закріпити свою зупинку і бачити розклад для неї."
+  Slide 11 (Статистика): "Оновлення 1 раз на секунду. Відгук інтерфейсу менше 400 мілісекунд. 2 реальних маршрутів міста."
+  Slide 12 (Демо): "Скануйте QR-код — додаток відкриється у браузері. Дозвольте геолокацію і побачите найближчий автобус. Можете додати на головний екран."
+  Slide 13 (Roadmap): "Наступний крок — реальні GPS-трекери з автобусів. Потім — квитки та оплата. І масштабування на інші міста."
+  Slide 14 (Команда): "Нас двоє. Назарій — фронтенд і дизайн, робив PWA, Leaflet, нативний iOS-стиль інтерфейсу. Дмитро — бекенд і дані, написав Python-сервер, WebSocket-симуляцію автобусів і підключив API alerts.in.ua."
+  Slide 15 (Q&A): "Дякую за увагу. Готовий до питань. Контакти на екрані."
+</div>
 
 <script>
   // Animation script for stats

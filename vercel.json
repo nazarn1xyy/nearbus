@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/frontend/schedule.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/frontend/$1"
     }
