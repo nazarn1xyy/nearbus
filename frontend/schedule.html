@@ -270,17 +270,20 @@ var SCH={
 var ST = {
   route: parseInt(localStorage.getItem('nearbus_route')) || 1,
   isHoliday: localStorage.getItem('nearbus_isHoliday') !== null ? localStorage.getItem('nearbus_isHoliday') === 'true' : (new Date().getDay()===0||new Date().getDay()===6),
-  myStopKey: localStorage.getItem('nearbus_myStopKey') || null,
-  isReversed: localStorage.getItem('nearbus_isReversed') === 'true',
   query: ''
 };
+Object.defineProperty(ST, 'myStopKey', {
+  get: function() { return localStorage.getItem('nearbus_myStopKey_' + ST.route) || null; },
+  set: function(val) { if(val) localStorage.setItem('nearbus_myStopKey_' + ST.route, val); else localStorage.removeItem('nearbus_myStopKey_' + ST.route); }
+});
+Object.defineProperty(ST, 'isReversed', {
+  get: function() { return localStorage.getItem('nearbus_isReversed_' + ST.route) === 'true'; },
+  set: function(val) { localStorage.setItem('nearbus_isReversed_' + ST.route, val); }
+});
 
 function saveState() {
   localStorage.setItem('nearbus_route', ST.route);
   localStorage.setItem('nearbus_isHoliday', ST.isHoliday);
-  if(ST.myStopKey) localStorage.setItem('nearbus_myStopKey', ST.myStopKey);
-  else localStorage.removeItem('nearbus_myStopKey');
-  localStorage.setItem('nearbus_isReversed', ST.isReversed);
 }
 
 /* ─── HELPERS ─── */
@@ -299,7 +302,7 @@ function updateClock(){
 
 /* ─── CONTROLS ─── */
 function switchRoute(r){
-  ST.route=r; ST.myStopKey=null; ST.isReversed=false;
+  ST.route=r;
   saveState();
   document.getElementById('tab1').className='segment__btn'+(r===1?' segment__btn--active':'');
   document.getElementById('tab1').setAttribute('aria-selected',r===1);
@@ -344,9 +347,10 @@ function render(){
   var mk='m'+ST.route;
 
   // Find hero stop: myStop if set, else first stop
-  var heroKey=ST.myStopKey || stops[0].k;
-  var heroName=ST.myStopKey ? stops.find(function(s){return s.k===ST.myStopKey;}) : stops[0];
-  heroName=heroName?heroName.n:stops[0].n;
+  var heroObj = ST.myStopKey ? stops.find(function(s){return s.k===ST.myStopKey;}) : stops[0];
+  if (!heroObj) { heroObj = stops[0]; ST.myStopKey = null; }
+  var heroKey = heroObj.k;
+  var heroName = heroObj.n;
   var heroTimes=getTimes(heroKey);
   var heroNi=findNext(heroTimes);
   var heroNt=heroNi>=0?heroTimes[heroNi]:null;
@@ -499,6 +503,10 @@ updateClock();
 setInterval(updateClock, 10000);
 setInterval(render, 60000);
 render();
+
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().catch(function(){});
+}
 </script>
 </body>
 </html>
