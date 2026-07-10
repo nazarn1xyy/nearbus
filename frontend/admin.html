@@ -45,7 +45,7 @@
         <div class="stat-label">Унікальних візитів (всього)</div>
         <div class="stat-value" id="totalCount">-</div>
       </div>
-      <div class="card" id="ipCard" style="display: none; margin-top: 20px; padding: 20px;">
+      <div class="card" id="ipCard" style="margin-top: 20px; padding: 20px;">
         <div class="stat-label" style="margin-bottom: 15px;">IP-адреси онлайн</div>
         <div id="ipList" style="color: #fff; font-family: monospace; font-size: 14px; text-align: left; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; max-height: 200px; overflow-y: auto;">
         </div>
@@ -72,12 +72,12 @@
         document.getElementById('totalCount').textContent = data.total;
         
         if (data.ips && data.ips.length > 0) {
-          document.getElementById('ipCard').style.display = 'block';
-          // Make unique IPs only
           const uniqueIps = [...new Set(data.ips)];
-          document.getElementById('ipList').innerHTML = uniqueIps.map(ip => `<div>${ip}</div>`).join('');
+          document.getElementById('ipList').innerHTML = uniqueIps.map(function(ip, i) {
+            return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">' + (i+1) + '. ' + ip + '</div>';
+          }).join('');
         } else {
-          document.getElementById('ipCard').style.display = 'none';
+          document.getElementById('ipList').innerHTML = '<div style="color:#8e8e93;text-align:center;">Немає користувачів онлайн</div>';
         }
         
         document.getElementById('loginForm').style.display = 'none';
