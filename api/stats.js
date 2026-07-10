@@ -40,13 +40,13 @@ export default async function handler(req, res) {
     let ips = [];
     if (onlineKeys.length > 0) {
       // MGET keys
-      const mgetResp = await fetch(`${KV_URL}/mget`, {
+      const mgetResp = await fetch(`${KV_URL}`, {
         method: 'POST',
         headers: {
           ...headers,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(onlineKeys)
+        body: JSON.stringify(["mget", ...onlineKeys])
       });
       const mgetData = await mgetResp.json();
       if (mgetData.result) {
