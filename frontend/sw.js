@@ -1,7 +1,7 @@
 // sw.js — Service Worker for PWA offline support
 // Caches app shell and map tiles for poor connectivity
 
-var CACHE_VERSION = 'v27';
+var CACHE_VERSION = 'v28';
 var SHELL_CACHE = 'bus-shell-' + CACHE_VERSION;
 var TILE_CACHE = 'bus-tiles-' + CACHE_VERSION;
 
@@ -62,6 +62,11 @@ self.addEventListener('fetch', function (e) {
         });
       })
     );
+    return;
+  }
+
+  // Never cache API calls or admin page — always go to network
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/admin')) {
     return;
   }
 
