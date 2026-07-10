@@ -50,6 +50,12 @@
         <div id="ipList" style="color: #fff; font-family: monospace; font-size: 14px; text-align: left; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; max-height: 200px; overflow-y: auto;">
         </div>
       </div>
+      <div class="card" id="feedbackCard" style="margin-top: 20px; padding: 20px;">
+        <div class="stat-label" style="margin-bottom: 15px;">Відгуки</div>
+        <div id="feedbackList" style="color: #fff; font-size: 14px; text-align: left; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; max-height: 400px; overflow-y: auto;">
+          <div style="color:#8e8e93;text-align:center;">Завантаження...</div>
+        </div>
+      </div>
       <p style="text-align: center; color: #8e8e93; font-size: 13px; margin-top: 24px; font-weight: 500;">Оновлюється автоматично кожні 5 секунд</p>
     </div>
   </div>
@@ -89,6 +95,29 @@
       }
     }
 
+    async function fetchFeedbacks() {
+      try {
+        const res = await fetch('/api/getFeedback?password=' + encodeURIComponent(currentPwd));
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const list = document.getElementById('feedbackList');
+        if (data.feedbacks && data.feedbacks.length > 0) {
+          list.innerHTML = data.feedbacks.map(f => {
+            const date = new Date(f.created_at).toLocaleString('uk-UA');
+            const ipPart = f.ip ? `<span style="color:#8e8e93; font-size:12px;"> - IP: ${f.ip}</span>` : '';
+            return `<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="margin-bottom:4px;"><strong style="color:#0a84ff;">${date}</strong>${ipPart}</div>
+              <div style="white-space: pre-wrap;">${f.text}</div>
+            </div>`;
+          }).join('');
+        } else {
+          list.innerHTML = '<div style="color:#8e8e93;text-align:center;">Ще немає відгуків</div>';
+        }
+      } catch(e) {
+        console.error('Error fetching feedbacks', e);
+      }
+    }
+
     async function loadStats() {
       const btn = document.querySelector('button');
       btn.textContent = 'Завантаження...';
@@ -98,10 +127,15 @@
       const success = await fetchStats();
       if (!success) {
         btn.textContent = 'Увійти';
+      } else {
+        await fetchFeedbacks();
       }
       
       if (success && !interval) {
-        interval = setInterval(fetchStats, 5000);
+        interval = setInterval(function() {
+          fetchStats();
+          fetchFeedbacks();
+        }, 5000);
       }
     }
   </script>

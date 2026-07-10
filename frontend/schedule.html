@@ -130,13 +130,46 @@
     .cta-wrap{padding:16px 16px 0}
     .map-cta{background:linear-gradient(180deg, #1c88ff 0%, #006ce0 100%);box-shadow:inset 0 1px 1px rgba(255,255,255,.3);color:#fff;border:none;border-radius:99px;padding:16px 20px;font-size:16px;font-weight:600;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:all .25s cubic-bezier(.32,.72,0,1);letter-spacing:-.2px}
     .map-cta:active{opacity:.9;transform:scale(.97);box-shadow:inset 0 1px 1px rgba(255,255,255,.3)}
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+    .modal { background:var(--surface-elevated-solid); border-radius:20px; width:100%; max-width:400px; padding:24px; box-shadow:0 24px 48px rgba(0,0,0,0.2); }
+    .modal-title { font-size:18px; font-weight:700; margin-bottom:12px; color:var(--text); }
+    .modal textarea { width:100%; background:var(--bg); border:1px solid var(--separator); border-radius:12px; padding:12px; color:var(--text); font-size:15px; min-height:100px; outline:none; resize:vertical; font-family:inherit; margin-bottom:16px; }
+    .modal textarea:focus { border-color:var(--accent); }
+    .modal-btns { display:flex; gap:12px; justify-content:flex-end; }
+    .modal-btn { padding:10px 16px; border-radius:99px; font-size:15px; font-weight:600; cursor:pointer; border:none; }
+    .modal-btn--cancel { background:var(--segment-track); color:var(--text); }
+    .modal-btn--submit { background:var(--accent); color:#fff; }
   </style>
 </head>
 <body>
 
+<script>
+  // Apply saved theme early to prevent flash
+  var savedTheme = localStorage.getItem('nearbus_theme');
+  if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+</script>
+
+<div class="modal-overlay" id="feedbackModal" onclick="if(event.target===this) closeFeedback()">
+  <div class="modal">
+    <div class="modal-title">Надіслати відгук</div>
+    <textarea id="feedbackText" placeholder="Що можна покращити? Або розкажіть про помилку..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn--cancel" onclick="closeFeedback()">Скасувати</button>
+      <button class="modal-btn modal-btn--submit" onclick="submitFeedback()" id="feedbackSubmitBtn">Надіслати</button>
+    </div>
+  </div>
+</div>
+
 <div class="header">
-  <div class="header__top">
+  <div class="header__top" style="position:relative; display:flex; justify-content:center; align-items:center;">
     <div class="header__title">Розклад</div>
+    <button id="settingsBtn" class="back-btn" style="position:absolute; right:0; padding:8px; border-radius:50%;" onclick="toggleSettings()" aria-label="Налаштування">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-ellipsis-icon lucide-circle-ellipsis"><circle cx="12" cy="12" r="10"/><path d="M17 12h.01"/><path d="M12 12h.01"/><path d="M7 12h.01"/></svg>
+    </button>
+    <div id="settingsDropdown" style="display:none; position:absolute; right:0; top:100%; margin-top:8px; background:var(--surface-elevated); border:.5px solid var(--separator); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.15); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px); overflow:hidden; min-width:160px; z-index:101; flex-direction:column;">
+      <button onclick="toggleTheme()" style="width:100%; text-align:left; padding:12px 16px; background:transparent; border:none; border-bottom:.5px solid var(--separator); color:var(--text); font-size:15px; font-weight:500; cursor:pointer;">Змінити тему</button>
+      <button onclick="openFeedback()" style="width:100%; text-align:left; padding:12px 16px; background:transparent; border:none; color:var(--text); font-size:15px; font-weight:500; cursor:pointer;">Надіслати відгук</button>
+    </div>
   </div>
 </div>
 
@@ -283,6 +316,61 @@ Object.defineProperty(ST, 'isReversed', {
 function saveState() {
   localStorage.setItem('nearbus_route', ST.route);
   localStorage.setItem('nearbus_isHoliday', ST.isHoliday);
+}
+
+/* ─── SETTINGS & FEEDBACK ─── */
+function toggleSettings() {
+  var d = document.getElementById('settingsDropdown');
+  d.style.display = d.style.display === 'none' ? 'flex' : 'none';
+}
+
+document.addEventListener('click', function(e) {
+  var d = document.getElementById('settingsDropdown');
+  var b = document.getElementById('settingsBtn');
+  if(d && d.style.display==='flex' && !d.contains(e.target) && !b.contains(e.target)) d.style.display='none';
+});
+
+function toggleTheme() {
+  var root = document.documentElement;
+  var isDark = root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  var newTheme = isDark ? 'light' : 'dark';
+  root.setAttribute('data-theme', newTheme);
+  localStorage.setItem('nearbus_theme', newTheme);
+  toggleSettings();
+}
+
+function openFeedback() {
+  toggleSettings();
+  document.getElementById('feedbackModal').style.display = 'flex';
+  document.getElementById('feedbackText').value = '';
+  setTimeout(function(){ document.getElementById('feedbackText').focus(); }, 100);
+}
+
+function closeFeedback() {
+  document.getElementById('feedbackModal').style.display = 'none';
+}
+
+async function submitFeedback() {
+  var txt = document.getElementById('feedbackText').value.trim();
+  if(!txt) return;
+  var btn = document.getElementById('feedbackSubmitBtn');
+  var origText = btn.textContent;
+  btn.textContent = 'Відправка...';
+  btn.disabled = true;
+  try {
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: txt })
+    });
+    closeFeedback();
+    alert('Дякуємо за ваш відгук!');
+  } catch(e) {
+    alert('Помилка відправки. Спробуйте пізніше.');
+  } finally {
+    btn.textContent = origText;
+    btn.disabled = false;
+  }
 }
 
 /* ─── HELPERS ─── */
