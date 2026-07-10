@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Статистика — Nearbus</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    body { padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #000; }
+    .admin-container { max-width: 600px; margin: 0 auto; padding-top: 40px; }
+    .card { background: rgba(30, 30, 35, 0.7); backdrop-filter: blur(12px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); text-align: center; margin-bottom: 20px; }
+    .stat-value { font-size: 72px; font-weight: 700; color: #fff; margin: 15px 0; font-variant-numeric: tabular-nums; }
+    .stat-label { color: #8e8e93; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .online-indicator { display: inline-block; width: 12px; height: 12px; background: #34c759; border-radius: 50%; box-shadow: 0 0 10px #34c759; margin-right: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(52, 199, 89, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); } }
+    input[type="password"] { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 12px; color: #fff; width: 100%; box-sizing: border-box; font-size: 16px; margin-bottom: 16px; outline: none; transition: border-color 0.2s; }
+    input[type="password"]:focus { border-color: #007aff; }
+    button { background: #007aff; color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; transition: background 0.2s; }
+    button:active { background: #0056b3; }
+    .stats-wrapper { display: none; }
+    h1 { color: #fff; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Nearbus Admin</h1>
+    
+    <div id="loginForm" class="card">
+      <div class="stat-label" style="margin-bottom: 20px;">Введіть пароль</div>
+      <input type="password" id="pwd" placeholder="Пароль" onkeypress="if(event.key==='Enter') loadStats()">
+      <button onclick="loadStats()">Увійти</button>
+      <div id="error" style="color: #ff453a; margin-top: 16px; display: none; font-size: 14px; font-weight: 500;">Неправильний пароль</div>
+    </div>
+
+    <div id="statsWrapper" class="stats-wrapper">
+      <div class="card">
+        <div class="stat-label"><span class="online-indicator"></span>Онлайн зараз</div>
+        <div class="stat-value" id="onlineCount">-</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Унікальних візитів (всього)</div>
+        <div class="stat-value" id="totalCount">-</div>
+      </div>
+      <p style="text-align: center; color: #8e8e93; font-size: 13px; margin-top: 24px; font-weight: 500;">Оновлюється автоматично кожні 5 секунд</p>
+    </div>
+  </div>
+
+  <script>
+    let currentPwd = '';
+    let interval = null;
+
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats?password=' + encodeURIComponent(currentPwd));
+        if (res.status === 401) {
+          document.getElementById('error').style.display = 'block';
+          return false;
+        }
+        if (!res.ok) throw new Error();
+        
+        const data = await res.json();
+        document.getElementById('onlineCount').textContent = data.online;
+        document.getElementById('totalCount').textContent = data.total;
+        
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('statsWrapper').style.display = 'block';
+        return true;
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    }
+
+    async function loadStats() {
+      const btn = document.querySelector('button');
+      btn.textContent = 'Завантаження...';
+      currentPwd = document.getElementById('pwd').value;
+      document.getElementById('error').style.display = 'none';
+      
+      const success = await fetchStats();
+      if (!success) {
+        btn.textContent = 'Увійти';
+      }
+      
+      if (success && !interval) {
+        interval = setInterval(fetchStats, 5000);
+      }
+    }
+  </script>
+</body>
+</html>

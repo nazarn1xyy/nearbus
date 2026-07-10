@@ -507,6 +507,30 @@ render();
 if (navigator.storage && navigator.storage.persist) {
   navigator.storage.persist().catch(function(){});
 }
+
+// ─── ANALYTICS PING ───
+(function(){
+  var visitorId = localStorage.getItem('nearbus_visitorId');
+  var isNewSession = false;
+  if (!visitorId) {
+    visitorId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('nearbus_visitorId', visitorId);
+    isNewSession = true;
+  }
+  
+  function sendPing() {
+    if (document.visibilityState !== 'visible') return;
+    fetch('/api/ping?visitorId=' + visitorId + (isNewSession ? '&isNewSession=true' : ''))
+      .then(function() { isNewSession = false; })
+      .catch(function(){});
+  }
+
+  sendPing();
+  setInterval(sendPing, 30000);
+  document.addEventListener('visibilitychange', function() {
+    if(document.visibilityState === 'visible') sendPing();
+  });
+})();
 </script>
 </body>
 </html>
