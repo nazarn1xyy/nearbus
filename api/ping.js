@@ -25,8 +25,11 @@ export default async function handler(req, res) {
       'Authorization': `Bearer ${KV_TOKEN}`
     };
 
+    const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown';
+    const cleanIp = ip.split(',')[0].trim();
+
     // 1. Mark user as online with a 65 seconds expiry (we ping every 30s)
-    await fetch(`${KV_URL}/set/online_${visitorId}/1/EX/65`, { headers });
+    await fetch(`${KV_URL}/set/online_${visitorId}/${encodeURIComponent(cleanIp)}/EX/65`, { headers });
 
     // 2. Increment total visits if it's a new session
     if (isNewSession === 'true') {

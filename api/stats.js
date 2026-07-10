@@ -32,15 +32,32 @@ export default async function handler(req, res) {
     // 2. Get online users using SCAN
     const scanResp = await fetch(`${KV_URL}/scan/0/MATCH/online_*/COUNT/1000`, { headers });
     const scanData = await scanResp.json();
-    // scanData.result is an array: [cursor, [key1, key2, ...]]
-    let onlineUsers = 0;
+    let onlineKeys = [];
     if (scanData.result && scanData.result.length > 1 && Array.isArray(scanData.result[1])) {
-      onlineUsers = scanData.result[1].length;
+      onlineKeys = scanData.result[1];
+    }
+
+    let ips = [];
+    if (onlineKeys.length > 0) {
+      // MGET keys
+      const mgetResp = await fetch(`${KV_URL}/mget`, {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(onlineKeys)
+      });
+      const mgetData = await mgetResp.json();
+      if (mgetData.result) {
+        ips = mgetData.result.filter(Boolean).map(ip => decodeURIComponent(ip));
+      }
     }
 
     res.status(200).json({ 
-      online: onlineUsers, 
-      total: parseInt(totalVisits, 10) || 0 
+      online: onlineKeys.length, 
+      total: parseInt(totalVisits, 10) || 0,
+      ips: ips
     });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });

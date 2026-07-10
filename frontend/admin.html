@@ -42,6 +42,11 @@
         <div class="stat-label">Унікальних візитів (всього)</div>
         <div class="stat-value" id="totalCount">-</div>
       </div>
+      <div class="card" id="ipCard" style="display: none; margin-top: 20px; padding: 20px;">
+        <div class="stat-label" style="margin-bottom: 15px;">IP-адреси онлайн</div>
+        <div id="ipList" style="color: #fff; font-family: monospace; font-size: 14px; text-align: left; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; max-height: 200px; overflow-y: auto;">
+        </div>
+      </div>
       <p style="text-align: center; color: #8e8e93; font-size: 13px; margin-top: 24px; font-weight: 500;">Оновлюється автоматично кожні 5 секунд</p>
     </div>
   </div>
@@ -62,6 +67,15 @@
         const data = await res.json();
         document.getElementById('onlineCount').textContent = data.online;
         document.getElementById('totalCount').textContent = data.total;
+        
+        if (data.ips && data.ips.length > 0) {
+          document.getElementById('ipCard').style.display = 'block';
+          // Make unique IPs only
+          const uniqueIps = [...new Set(data.ips)];
+          document.getElementById('ipList').innerHTML = uniqueIps.map(ip => `<div>${ip}</div>`).join('');
+        } else {
+          document.getElementById('ipCard').style.display = 'none';
+        }
         
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('statsWrapper').style.display = 'block';
