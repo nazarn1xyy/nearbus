@@ -1,20 +1,16 @@
 // sw.js — Service Worker for PWA offline support
 // Caches app shell and map tiles for poor connectivity
 
-var CACHE_VERSION = 'v24';
+var CACHE_VERSION = 'v25';
 var SHELL_CACHE = 'bus-shell-' + CACHE_VERSION;
 var TILE_CACHE = 'bus-tiles-' + CACHE_VERSION;
 
 var SHELL_FILES = [
   './',
-  './index.html',
   './schedule.html',
   './style.css',
   './tokens.css',
-  './app.js',
   './manifest.json',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
 ];
 
 self.addEventListener('install', function (e) {
@@ -83,7 +79,7 @@ self.addEventListener('fetch', function (e) {
           }
           return resp;
         }).catch(function () {
-          return caches.match('./index.html');
+          return caches.match('./schedule.html');
         });
       })
     );
