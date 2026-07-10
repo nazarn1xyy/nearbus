@@ -70,21 +70,21 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  // App shell — cache-first
+  // App shell — network-first (always fetch fresh, cache as fallback)
   if (url.origin === self.location.origin || SHELL_FILES.indexOf(req.url) !== -1) {
     e.respondWith(
-      caches.match(req).then(function (cached) {
-        if (cached) return cached;
-        return fetch(req).then(function (resp) {
-          if (resp.ok) {
-            var respClone = resp.clone();
-            caches.open(SHELL_CACHE).then(function (cache) {
-              cache.put(req, respClone).catch(function () {});
-            });
-          }
-          return resp;
-        }).catch(function () {
-          return caches.match('./schedule.html');
+      fetch(req).then(function (resp) {
+        if (resp.ok) {
+          var respClone = resp.clone();
+          caches.open(SHELL_CACHE).then(function (cache) {
+            cache.put(req, respClone).catch(function () {});
+          });
+        }
+        return resp;
+      }).catch(function () {
+        // Offline fallback
+        return caches.match(req).then(function (cached) {
+          return cached || caches.match('./schedule.html');
         });
       })
     );
