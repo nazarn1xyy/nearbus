@@ -15,9 +15,12 @@ export default async function handler(req, res) {
 
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  // Basic admin protection
-  const { password } = req.query;
-  if (password !== process.env.ADMIN_PASSWORD && password !== 'nearbus2024') {
+  // Basic admin protection — via header, compared against env (never hardcoded, never in query string)
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    return res.status(500).json({ error: 'ADMIN_PASSWORD is not configured' });
+  }
+  if (req.headers['x-admin-password'] !== adminPassword) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

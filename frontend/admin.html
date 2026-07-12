@@ -65,9 +65,20 @@
     let currentPwd = '';
     let interval = null;
 
+    // Escape any user-controlled value before inserting into HTML (prevents stored XSS)
+    function esc(v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function adminHeaders() {
+      return { 'x-admin-password': currentPwd };
+    }
+
     async function fetchStats() {
       try {
-        const res = await fetch('/api/stats?password=' + encodeURIComponent(currentPwd));
+        const res = await fetch('/api/stats', { headers: adminHeaders() });
         if (res.status === 401) {
           document.getElementById('error').style.display = 'block';
           return false;
@@ -81,7 +92,7 @@
         if (data.ips && data.ips.length > 0) {
           const uniqueIps = [...new Set(data.ips)];
           document.getElementById('ipList').innerHTML = uniqueIps.map(function(ip, i) {
-            return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">' + (i+1) + '. ' + ip + '</div>';
+            return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">' + (i+1) + '. ' + esc(ip) + '</div>';
           }).join('');
         } else {
           document.getElementById('ipList').innerHTML = '<div style="color:#8e8e93;text-align:center;">Немає користувачів онлайн</div>';
@@ -98,17 +109,17 @@
 
     async function fetchFeedbacks() {
       try {
-        const res = await fetch('/api/getFeedback?password=' + encodeURIComponent(currentPwd));
+        const res = await fetch('/api/getFeedback', { headers: adminHeaders() });
         if (!res.ok) throw new Error();
         const data = await res.json();
         const list = document.getElementById('feedbackList');
         if (data.feedbacks && data.feedbacks.length > 0) {
           list.innerHTML = data.feedbacks.map(f => {
-            const date = new Date(f.created_at).toLocaleString('uk-UA');
-            const ipPart = f.ip ? `<span style="color:#8e8e93; font-size:12px;"> - IP: ${f.ip}</span>` : '';
+            const date = esc(new Date(f.created_at).toLocaleString('uk-UA'));
+            const ipPart = f.ip ? `<span style="color:#8e8e93; font-size:12px;"> - IP: ${esc(f.ip)}</span>` : '';
             return `<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
               <div style="margin-bottom:4px;"><strong style="color:#0a84ff;">${date}</strong>${ipPart}</div>
-              <div style="white-space: pre-wrap;">${f.text}</div>
+              <div style="white-space: pre-wrap;">${esc(f.text)}</div>
             </div>`;
           }).join('');
         } else {

@@ -25,7 +25,7 @@
   --surface-elevated-solid: var(--white);
   --text: var(--gray-900);
   --text-secondary: var(--gray-600);
-  --text-tertiary: var(--gray-400);
+  --text-tertiary: #6c6c70; /* was gray-400 (#aeaeb2 ≈ 1.9:1 — failed WCAG AA); now ≈4.6:1 on --bg */
   --separator: rgba(60, 60, 67, 0.2);
   --separator-opaque: var(--gray-200);
   --segment-track: rgba(118, 118, 128, 0.12);

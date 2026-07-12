@@ -2,17 +2,26 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="description" content="Розклад автобусів Могилева-Подільського: маршрути, зупинки та найближчі відправлення в реальному часі."/>
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)"/>
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="Розклад — Nearbus"/>
+  <meta property="og:description" content="Розклад автобусів Могилева-Подільського у реальному часі."/>
+  <meta property="og:type" content="website"/>
   <title>Розклад — Nearbus</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
   <link rel="stylesheet" href="tokens.css?v=1"/>
   <link rel="stylesheet" href="glass.css?v=1"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100dvh;padding-bottom:max(env(safe-area-inset-bottom,0px) + 80px,88px)}
 
     /* ── HEADER ── */
@@ -40,9 +49,10 @@
     .search-input:focus{box-shadow:inset 0 0 0 1.5px var(--accent),inset 0 2px 4px rgba(0,122,255,.1)}
     .search-input::placeholder{color:var(--text-tertiary)}
     .search-clear{position:absolute;right:8px;width:20px;height:20px;border:none;background:var(--text-tertiary);color:#fff;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
+    .search-clear::after{content:'';position:absolute;inset:-12px}
     .search-clear--visible{opacity:1;pointer-events:auto}
 
-    .dir-btn{width:42px;height:42px;border-radius:99px;border:none;background:var(--surface-elevated);box-shadow:inset 0 0 0 .5px rgba(255,255,255,0.1),inset 0 1px 0 rgba(255,255,255,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s cubic-bezier(.32,.72,0,1);position:relative}
+    .dir-btn{width:44px;height:44px;border-radius:99px;border:none;background:var(--surface-elevated);box-shadow:inset 0 0 0 .5px rgba(255,255,255,0.1),inset 0 1px 0 rgba(255,255,255,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s cubic-bezier(.32,.72,0,1);position:relative}
     .dir-btn:active{transform:scale(.92);opacity:.8}
     .dir-btn--active{background:linear-gradient(180deg, var(--accent-light) 0%, rgba(0,122,255,0.05) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 .5px rgba(0,122,255,.3);color:var(--accent)}
     .dir-badge{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
@@ -51,7 +61,7 @@
     .hero{padding:0 16px 0;display:flex;gap:16px;align-items:stretch}
     .hero__main{flex:1;background:linear-gradient(135deg,var(--accent-light) 0%,rgba(0,122,255,.05) 100%);border:none;box-shadow:inset 0 0 0 .5px rgba(0,122,255,.2),0 4px 12px rgba(0,122,255,.08);border-radius:20px;padding:12px 16px;position:relative;overflow:hidden;cursor:default}
     .hero__main::after{content:'';position:absolute;top:-24px;right:-24px;width:90px;height:90px;background:radial-gradient(circle,rgba(0,122,255,.12) 0%,transparent 70%);pointer-events:none}
-    .hero__stop-label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+    .hero__stop-label{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:5px}
     .hero__pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pdot 1.8s ease-in-out infinite}
     @keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
     .hero__stop-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -63,13 +73,13 @@
     .hero__day-btn{background:var(--surface-elevated);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:none;box-shadow:0 0 0 .5px var(--separator),inset 0 1px 0 rgba(255,255,255,.25);border-radius:24px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;min-width:64px;flex:1;transition:all .2s cubic-bezier(.32,.72,0,1)}
     .hero__day-btn:active{transform:scale(.94);opacity:.8}
     .hero__day-icon{color:var(--text-secondary)}
-    .hero__day-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--text-secondary);text-align:center;white-space:nowrap}
+    .hero__day-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--text-secondary);text-align:center;white-space:nowrap}
 
     .hero__direction-card{background:var(--surface-elevated);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:none;box-shadow:0 0 0 .5px var(--separator),inset 0 1px 0 rgba(255,255,255,.25);border-radius:24px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;cursor:pointer;transition:all .2s cubic-bezier(.32,.72,0,1)}
     .hero__direction-card:active{transform:scale(.94);opacity:.8}
-    .hero__dir-from{font-size:9px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+    .hero__dir-from{font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
     .hero__dir-arrow{color:var(--text-tertiary)}
-    .hero__dir-to{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+    .hero__dir-to{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
 
     /* ── STATS ── */
     .stats-bar{margin:10px 16px 0;display:flex;gap:7px}
@@ -78,7 +88,7 @@
     .stat-chip__icon--blue{background:rgba(0,122,255,.12);color:var(--accent)}
     .stat-chip__icon--green{background:rgba(52,199,89,.12);color:#34c759}
     .stat-chip__icon--orange{background:rgba(255,149,0,.12);color:#ff9500}
-    .stat-chip__label{font-size:10px;color:var(--text-secondary);font-weight:500;line-height:1.2}
+    .stat-chip__label{font-size:11px;color:var(--text-secondary);font-weight:500;line-height:1.2}
     .stat-chip__value{font-size:12px;font-weight:700;color:var(--text);letter-spacing:-.2px;line-height:1.2}
 
     /* ── SECTION HEADER ── */
@@ -98,22 +108,25 @@
     .timeline{padding:0 16px;position:relative}
     .timeline::before{content:'';position:absolute;left:26px;top:10px;bottom:10px;width:1.5px;background:linear-gradient(to bottom,transparent,var(--separator-opaque) 8%,var(--separator-opaque) 92%,transparent)}
 
-    .stop-row{display:flex;align-items:flex-start;gap:10px;padding:6px 0;cursor:pointer;animation:sin .28s cubic-bezier(.32,.72,0,1) both}
+    .stop-row{display:flex;align-items:flex-start;gap:10px;padding:6px 0}
+    .stop-row--in{animation:sin .28s cubic-bezier(.32,.72,0,1) both}
     @keyframes sin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
     .stop-row__dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--separator-opaque);background:var(--bg);flex-shrink:0;margin-top:14px;z-index:1;position:relative;display:flex;align-items:center;justify-content:center;transition:all .25s}
     .stop-row__dot-inner{width:6px;height:6px;border-radius:50%;background:var(--text-tertiary);transition:all .25s}
-    .stop-row__body{flex:1;background:var(--surface-elevated);border:.5px solid var(--separator);border-radius:var(--radius-md);padding:10px 13px;transition:all .22s;user-select:none}
+    .stop-row__body{flex:1;background:var(--surface-elevated);border:.5px solid var(--separator);border-radius:var(--radius-md);padding:10px 13px;transition:all .22s}
     .stop-row__top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;gap:8px}
     .stop-row__name{font-size:14px;font-weight:600;color:var(--text);flex:1;min-width:0}
     .stop-row__actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
     .stop-row__next-badge{display:flex;align-items:center;gap:3px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;border-radius:7px;padding:3px 8px}
-    .stop-row__mystop-btn{width:28px;height:28px;border-radius:99px;border:none;box-shadow:inset 0 0 0 1.5px var(--separator);background:transparent;color:var(--text-tertiary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s cubic-bezier(.32,.72,0,1);flex-shrink:0}
+    .stop-row__mystop-btn{position:relative;width:28px;height:28px;border-radius:99px;border:none;box-shadow:inset 0 0 0 1.5px var(--separator);background:transparent;color:var(--text-tertiary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s cubic-bezier(.32,.72,0,1);flex-shrink:0}
+    .stop-row__mystop-btn::after{content:'';position:absolute;inset:-8px}
     .stop-row__mystop-btn--active{background:linear-gradient(180deg, rgba(255,149,0,.1) 0%, rgba(255,149,0,.2) 100%);box-shadow:inset 0 0 0 1.5px rgba(255,149,0,.5),0 2px 6px rgba(255,149,0,.2);color:#ff9500;transform:scale(1.05)}
     .times-grid{display:flex;flex-wrap:wrap;gap:5px}
     .time-chip{display:inline-block;padding:4px 10px;font-size:13px;font-weight:500;color:var(--text-secondary);background:var(--bg);border:1px solid var(--separator-opaque);border-radius:7px;transition:all .2s;white-space:nowrap;letter-spacing:-.2px}
     .time-chip--next{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;font-size:13px;padding:4px 12px;box-shadow:0 2px 8px rgba(0,122,255,.35);animation:chip-pulse 2.4s ease-in-out infinite}
     @keyframes chip-pulse{0%,100%{box-shadow:0 2px 8px rgba(0,122,255,.35)}50%{box-shadow:0 2px 14px rgba(0,122,255,.6)}}
-    .time-chip--past{opacity:0.35;}
+    .time-chip--past{opacity:0.45;}
+    .time-more{cursor:pointer;font-family:inherit;font-weight:600;color:var(--accent);background:var(--accent-light);border-color:transparent}
 
     /* stop states */
     .stop-row--mystop .stop-row__dot{border-color:#ff9500;background:#ff9500}
@@ -161,12 +174,13 @@
 
     /* ── REDUCED MOTION ── */
     @media(prefers-reduced-motion:reduce){
-      .stop-row{animation:none}
-      .hero__pulse{animation:none;opacity:1}
-      .time-chip--next{animation:none}
-      .no-results,.no-results__emoji{animation:none}
-      .settings-dropdown{animation:none}
-      .segment__slider{transition:none}
+      *,*::before,*::after{
+        animation-duration:.001ms!important;
+        animation-iteration-count:1!important;
+        transition-duration:.001ms!important;
+        scroll-behavior:auto!important
+      }
+      .hero__pulse{opacity:1}
     }
   </style>
 </head>
@@ -179,9 +193,10 @@
 </script>
 
 <div class="modal-overlay" id="feedbackModal" onclick="if(event.target===this) closeFeedback()">
-  <div class="modal">
-    <div class="modal-title">Надіслати відгук</div>
-    <textarea id="feedbackText" placeholder="Що можна покращити? Або розкажіть про помилку..."></textarea>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+    <div class="modal-title" id="feedbackTitle">Надіслати відгук</div>
+    <textarea id="feedbackText" placeholder="Що можна покращити? Або розкажіть про помилку..." aria-label="Текст відгуку"></textarea>
+    <div id="feedbackStatus" role="status" aria-live="polite" style="font-size:13px;font-weight:600;min-height:18px;margin-bottom:12px"></div>
     <div class="modal-btns">
       <button class="modal-btn modal-btn--cancel" onclick="closeFeedback()">Скасувати</button>
       <button class="modal-btn modal-btn--submit" onclick="submitFeedback()" id="feedbackSubmitBtn">Надіслати</button>
@@ -341,8 +356,13 @@ var SCH={
 var ST = {
   route: parseInt(localStorage.getItem('nearbus_route')) || 1,
   isHoliday: localStorage.getItem('nearbus_isHoliday') !== null ? localStorage.getItem('nearbus_isHoliday') === 'true' : (new Date().getDay()===0||new Date().getDay()===6),
-  query: ''
+  query: '',
+  expanded: new Set()   // stop keys whose full time list is expanded
 };
+
+// Entrance animations should play only on the first paint, not on every
+// auto-refresh / keystroke re-render (prevents per-minute flicker).
+var animateIn = true;
 Object.defineProperty(ST, 'myStopKey', {
   get: function() { return localStorage.getItem('nearbus_myStopKey_' + ST.route) || null; },
   set: function(val) { if(val) localStorage.setItem('nearbus_myStopKey_' + ST.route, val); else localStorage.removeItem('nearbus_myStopKey_' + ST.route); }
@@ -384,34 +404,56 @@ function toggleTheme() {
   toggleSettings();
 }
 
+var feedbackLastFocused = null;
+
+function setFeedbackStatus(msg, ok) {
+  var el = document.getElementById('feedbackStatus');
+  if(!el) return;
+  el.textContent = msg || '';
+  el.style.color = ok ? '#34c759' : 'var(--danger)';
+}
+
 function openFeedback() {
   toggleSettings();
+  feedbackLastFocused = document.activeElement;
   document.getElementById('feedbackModal').style.display = 'flex';
   document.getElementById('feedbackText').value = '';
+  setFeedbackStatus('', true);
   setTimeout(function(){ document.getElementById('feedbackText').focus(); }, 100);
 }
 
 function closeFeedback() {
   document.getElementById('feedbackModal').style.display = 'none';
+  if(feedbackLastFocused && feedbackLastFocused.focus) feedbackLastFocused.focus();
+  feedbackLastFocused = null;
 }
+
+// Close modal on Escape
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('feedbackModal').style.display === 'flex') {
+    closeFeedback();
+  }
+});
 
 async function submitFeedback() {
   var txt = document.getElementById('feedbackText').value.trim();
-  if(!txt) return;
+  if(!txt) { setFeedbackStatus('Введіть текст відгуку', false); return; }
   var btn = document.getElementById('feedbackSubmitBtn');
   var origText = btn.textContent;
   btn.textContent = 'Відправка...';
   btn.disabled = true;
+  setFeedbackStatus('', true);
   try {
-    await fetch('/api/feedback', {
+    var resp = await fetch('/api/feedback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: txt })
     });
-    closeFeedback();
-    alert('Дякуємо за ваш відгук!');
+    if(!resp.ok) throw new Error('bad status');
+    setFeedbackStatus('Дякуємо за ваш відгук!', true);
+    setTimeout(closeFeedback, 1200);
   } catch(e) {
-    alert('Помилка відправки. Спробуйте пізніше.');
+    setFeedbackStatus('Помилка відправки. Спробуйте пізніше.', false);
   } finally {
     btn.textContent = origText;
     btn.disabled = false;
@@ -456,16 +498,25 @@ function setMyStop(key,name){
   render();
 }
 
+var searchDebounce = null;
 function onSearch(val){
   ST.query=val.trim().toLowerCase();
   document.getElementById('searchClear').className='search-clear'+(ST.query?' search-clear--visible':'');
-  render();
+  // Debounce the (expensive) full re-render so typing stays responsive.
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(render, 160);
 }
 
 function clearSearch(){
   ST.query='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').className='search-clear';
+  clearTimeout(searchDebounce);
+  render();
+}
+
+function toggleTimes(key){
+  if(ST.expanded.has(key)) ST.expanded.delete(key); else ST.expanded.add(key);
   render();
 }
 
@@ -560,13 +611,16 @@ function render(){
   /* NO RESULTS */
   if(ST.query&&filteredCount===0){
     hTimeline+='<div class="no-results">';
-    hTimeline+='<span class="no-results__emoji">🔍</span>';
+    hTimeline+='<span class="no-results__emoji"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>';
     hTimeline+='<div class="no-results__title">Зупинку не знайдено</div>';
     hTimeline+='<div class="no-results__sub">Нічого не знайшлося за «'+ST.query+'».<br><button onclick="clearSearch()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;font-family:inherit;font-weight:600;">Очистити пошук</button></div>';
     hTimeline+='</div>';
   }
 
   /* TIMELINE */
+  // Compute the "next" stop index once (was O(n²): a findIndex per row).
+  var nextStopIdx = ST.myStopKey ? -1 : filteredStops.findIndex(function(s2){ return findNext(getTimes(s2.k))>=0; });
+
   hTimeline+='<div class="timeline">';
   filteredStops.forEach(function(stop, idx){
     var times=getTimes(stop.k);
@@ -574,15 +628,16 @@ function render(){
     var st=si>=0?times[si]:null;
     var isAllPast=times.length>0&&st===null;
     var isMyStop=ST.myStopKey===stop.k;
-    var isNextStop=!ST.myStopKey&&si>=0&&!isAllPast&&idx===filteredStops.findIndex(function(s2){var t2=getTimes(s2.k); return findNext(t2)>=0;});
+    var isNextStop=!ST.myStopKey&&si>=0&&!isAllPast&&idx===nextStopIdx;
 
     var cls='stop-row';
+    if(animateIn) cls+=' stop-row--in';
     if(isMyStop) cls+=' stop-row--mystop';
     else if(isNextStop&&!ST.myStopKey) cls+=' stop-row--next-stop';
     if(isAllPast) cls+=' stop-row--past';
     if(stop.ep) cls+=' stop-row--endpoint';
 
-    hTimeline+='<div class="'+cls+'" style="animation-delay:'+(idx*0.025)+'s">';
+    hTimeline+='<div class="'+cls+'"'+(animateIn?' style="animation-delay:'+(idx*0.025)+'s"':'')+'>';
     hTimeline+='<div class="stop-row__dot"><div class="stop-row__dot-inner"></div></div>';
     hTimeline+='<div class="stop-row__body">';
     hTimeline+='<div class="stop-row__top">';
@@ -594,21 +649,38 @@ function render(){
       hTimeline+=st+'</div>';
     }
     // My stop pin button
-    hTimeline+='<button class="stop-row__mystop-btn'+(isMyStop?' stop-row__mystop-btn--active':'')+'" onclick="event.stopPropagation();setMyStop(\''+stop.k.replace(/'/g,"\\'")+'\')" title="'+(isMyStop?'Зняти як мою зупинку':'Встановити як мою зупинку')+'" aria-pressed="'+isMyStop+'">';
+    var mystopLabel = isMyStop?'Зняти як мою зупинку':'Встановити як мою зупинку';
+    hTimeline+='<button class="stop-row__mystop-btn'+(isMyStop?' stop-row__mystop-btn--active':'')+'" onclick="event.stopPropagation();setMyStop(\''+stop.k.replace(/'/g,"\\'")+'\')" title="'+mystopLabel+'" aria-label="'+mystopLabel+'" aria-pressed="'+isMyStop+'">';
     hTimeline+='<svg width="13" height="13" viewBox="0 0 24 24" fill="'+(isMyStop?'#ff9500':'none')+'" stroke="'+(isMyStop?'#ff9500':'currentColor')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
     hTimeline+='</button>';
     hTimeline+='</div></div>';
 
     if(times.length>0){
+      var COLLAPSED = 6;
+      var expanded = ST.expanded.has(stop.k);
+      var showAll = expanded || times.length <= COLLAPSED;
+      var fromI, toI;
+      if(showAll){ fromI = 0; toI = times.length; }
+      else if(si >= 0){ fromI = si; toI = Math.min(times.length, si + COLLAPSED); }
+      else { fromI = Math.max(0, times.length - COLLAPSED); toI = times.length; } // all past → show last few
+      var hidden = times.length - (toI - fromI);
+
       hTimeline+='<div class="times-grid">';
-      var now = nowMin();
-      times.forEach(function(t){
-        var tm=parseT(t);
-        var c='time-chip';
+      var nowT = nowMin();
+      for(var ti = fromI; ti < toI; ti++){
+        var t = times[ti];
+        var tm = parseT(t);
+        var c = 'time-chip';
         if(t===st) c+=' time-chip--next';
-        else if(tm<now) c+=' time-chip--past';
+        else if(tm<nowT) c+=' time-chip--past';
         hTimeline+='<span class="'+c+'">'+t+'</span>';
-      });
+      }
+      var tkey = stop.k.replace(/'/g,"\\'");
+      if(!showAll && hidden>0){
+        hTimeline+='<button class="time-chip time-more" onclick="toggleTimes(\''+tkey+'\')" aria-expanded="false">+'+hidden+' ще</button>';
+      } else if(expanded && times.length>COLLAPSED){
+        hTimeline+='<button class="time-chip time-more" onclick="toggleTimes(\''+tkey+'\')" aria-expanded="true">Згорнути</button>';
+      }
       hTimeline+='</div>';
     } else {
       hTimeline+='<span style="font-size:11px;color:var(--text-tertiary)">Дані відсутні</span>';
@@ -622,6 +694,10 @@ function render(){
   hTimeline+='<div style="height:32px"></div>';
 
   document.getElementById('timelineContent').innerHTML = hTimeline;
+
+  // Entrance animations have now played once; suppress them on subsequent
+  // re-renders (auto-refresh, search, toggles) to avoid flicker.
+  animateIn = false;
 }
 
 function setDay(isHoliday){
@@ -658,7 +734,7 @@ if (navigator.storage && navigator.storage.persist) {
   }
 
   sendPing();
-  setInterval(sendPing, 30000);
+  setInterval(sendPing, 60000);
   document.addEventListener('visibilitychange', function() {
     if(document.visibilityState === 'visible') sendPing();
   });

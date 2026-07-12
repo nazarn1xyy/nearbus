@@ -12,8 +12,12 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Password check
-  if (req.query.password !== 'nearbus2024') {
+  // Password check — via header, compared against env (never hardcoded, never in query string)
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    return res.status(500).json({ error: 'ADMIN_PASSWORD is not configured' });
+  }
+  if (req.headers['x-admin-password'] !== adminPassword) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

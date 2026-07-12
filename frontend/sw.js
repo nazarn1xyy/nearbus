@@ -1,15 +1,15 @@
 // sw.js — Service Worker for PWA offline support
 // Caches app shell and map tiles for poor connectivity
 
-var CACHE_VERSION = 'v31';
+var CACHE_VERSION = 'v32';
 var SHELL_CACHE = 'bus-shell-' + CACHE_VERSION;
 var TILE_CACHE = 'bus-tiles-' + CACHE_VERSION;
 
 var SHELL_FILES = [
   './',
   './schedule.html',
-  './style.css',
   './tokens.css',
+  './glass.css',
   './manifest.json',
 ];
 
